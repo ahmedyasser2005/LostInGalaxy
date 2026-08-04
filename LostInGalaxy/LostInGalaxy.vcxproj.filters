@@ -167,15 +167,4 @@
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="LICENSE.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="assets\2026-08-04.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

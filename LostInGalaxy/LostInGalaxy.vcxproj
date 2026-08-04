@@ -63,18 +63,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md">
-      <SubType>
-      </SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="LICENSE.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="assets\2026-08-04.png" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
