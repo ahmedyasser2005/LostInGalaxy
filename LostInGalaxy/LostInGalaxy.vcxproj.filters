@@ -160,11 +160,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="res\Shaders\PixelShader.hlsl">
+    <FxCompile Include="src\Shaders\PixelShader.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="res\Shaders\VertexShader.hlsl">
+    <FxCompile Include="src\Shaders\VertexShader.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\2026-08-04.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

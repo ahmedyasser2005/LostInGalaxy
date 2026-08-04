@@ -54,14 +54,26 @@
     <ClInclude Include="src\Scene\Transform.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="res\Shaders\PixelShader.hlsl">
+    <FxCompile Include="src\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="res\Shaders\VertexShader.hlsl">
+    <FxCompile Include="src\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <SubType>
+      </SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\2026-08-04.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

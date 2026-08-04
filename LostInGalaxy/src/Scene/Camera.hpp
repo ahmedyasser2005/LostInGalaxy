@@ -31,7 +31,7 @@ private:
 	DirectX::XMFLOAT4X4 m_projMatrixStorage = {};
 
 	float m_fovAngleY = 60.0f;
-	float m_aspectRatio = 1280.0f / 720.0f;
+	float m_aspectRatio = 16.0f / 9.0f;
 	float m_nearZ = 0.1f;
 	float m_farZ = 100.0f;
 
