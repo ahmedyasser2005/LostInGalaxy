@@ -6,7 +6,7 @@
 template<typename T>
 class ConstantBuffer final : public IBind {
 public:
-	ConstantBuffer( GraphicsDevice* graphicsDevice, uint32_t slot ) :
+	ConstantBuffer( GraphicsDevice* graphicsDevice, uint16_t slot ) :
 		IBind( graphicsDevice ),
 		m_slot( slot )
 	{
@@ -41,13 +41,13 @@ public:
 		m_device->GetContext()->VSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
 	}
 
-	uint32_t GetSlot() const noexcept
+	uint16_t GetSlot() const noexcept
 	{
 		return m_slot;
 	}
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
-	const uint32_t m_slot;
+	const uint16_t m_slot;
 
 };

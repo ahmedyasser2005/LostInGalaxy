@@ -7,7 +7,8 @@
 
 struct Vertex {
 	DirectX::XMFLOAT3 position;
-	std::array<uint8_t, 4> color;
+	//std::array<uint8_t, 4> color;
+	DirectX::XMFLOAT2 uv;
 };
 
 // Holds GPU Vertex & Index buffer.

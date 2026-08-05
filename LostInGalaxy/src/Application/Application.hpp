@@ -34,7 +34,6 @@ private:
 	std::unique_ptr<Scene> m_scene;
 
 	std::shared_ptr<Mesh> m_blockMesh;
-	std::unique_ptr<Shader> m_shader;
 	std::shared_ptr<Material> m_blockMaterial;
 
 	// States

@@ -2,5 +2,6 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
+  <Project Path="LostInGalaxy/ext/DirectXTex/DirectXTex/DirectXTex_Desktop_2026.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77" />
   <Project Path="LostInGalaxy/LostInGalaxy.vcxproj" Id="9610f82b-6bf9-49d0-93d2-cb2c72d9ecdc" />
 </Solution>

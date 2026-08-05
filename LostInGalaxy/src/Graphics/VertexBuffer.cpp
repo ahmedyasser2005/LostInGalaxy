@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "VertexBuffer.hpp"
-#include "Scene/Mesh.hpp"
+#include "Graphics/Mesh.hpp"
 
 VertexBuffer::VertexBuffer( GraphicsDevice* graphicsDevice, std::span<Vertex> vertices ) :
 	IBind( graphicsDevice )

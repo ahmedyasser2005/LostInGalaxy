@@ -1,0 +1,3 @@
+[submodule "LostInGalaxy/ext/DirectXTex"]
+	path = LostInGalaxy/ext/DirectXTex
+	url = https://github.com/microsoft/DirectXTex.git

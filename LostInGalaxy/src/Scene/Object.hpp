@@ -1,8 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "Scene/Mesh.hpp"
-#include "Scene/Material.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Material.hpp"
 #include "Scene/Transform.hpp"
 
 class Object {

@@ -18,12 +18,10 @@ public:
 	[[nodiscard]] GraphicsDevice* GetGraphicsDevice() const noexcept;
 
 private:
-	// Private Methods
 	void BeginFrame() noexcept;
 	void EndFrame() noexcept;
 	void Draw( class Object* object ) noexcept;
 
-	// Member Data
 	std::unique_ptr<GraphicsDevice> m_device;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;

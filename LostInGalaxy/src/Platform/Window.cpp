@@ -28,7 +28,7 @@ Window::Window( const wchar_t* title, UINT width, UINT height ) :
 	RECT rc = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
 	AdjustWindowRect( &rc, WS_OVERLAPPEDWINDOW, FALSE );
 
-	m_hwnd = CreateWindowExW( WS_EX_TOPMOST, // Just to prevent the console messing up my initial mouse pos
+	m_hwnd = CreateWindowExW( 0u, // WS_EX_TOPMOST, // Just to prevent the console messing up my initial mouse pos
 							  g_className, title,
 							  WS_OVERLAPPEDWINDOW,
 							  CW_USEDEFAULT, CW_USEDEFAULT,

@@ -40,11 +40,32 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{1dfeae5d-88a3-44bc-a656-6466cc8e4589}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Precompiled Files">
-      <UniqueIdentifier>{584764e5-827a-418e-bdec-ff21823f0542}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Graphics\Interfaces">
       <UniqueIdentifier>{b7f17cca-b066-4ae4-98e5-4204224afb05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{700bef05-37ce-48f3-b045-596003f5b0f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Textures\StoneBricksSplitface001">
+      <UniqueIdentifier>{25f75d20-7494-4135-9221-af93e3ea5daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry">
+      <UniqueIdentifier>{fdcdb2d7-a406-4570-ab59-fa824bc5f986}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Geometry\Material">
+      <UniqueIdentifier>{48c3726c-fa0a-46e7-ab4f-c7f633d8b2d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entrypoint">
+      <UniqueIdentifier>{0cd026db-d8ee-4fcd-9cbb-28e79e8792a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry">
+      <UniqueIdentifier>{897d2bb2-c885-4fac-9998-2b52655d4284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Geometry\Material">
+      <UniqueIdentifier>{269b4d78-26c2-49ec-8daf-fe4be477966e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PCH Files">
+      <UniqueIdentifier>{584764e5-827a-418e-bdec-ff21823f0542}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,14 +75,11 @@
     <ClCompile Include="src\Graphics\Renderer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\Transform.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\Camera.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
-      <Filter>Precompiled Files</Filter>
+      <Filter>PCH Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\ConstantBuffer.cpp">
       <Filter>Source Files\Graphics\Buffers</Filter>
@@ -87,27 +105,30 @@
     <ClCompile Include="src\Scene\Scene.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Application\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Entrypoint</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\Application.cpp">
+      <Filter>Entrypoint</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Sampler.cpp">
+      <Filter>Source Files\Graphics\Geometry\Material</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Shader.cpp">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\Graphics\Geometry\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Texture.cpp">
+      <Filter>Source Files\Graphics\Geometry\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\Transform.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
-      <Filter>Precompiled Files</Filter>
+      <Filter>PCH Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Camera.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Mesh.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Transform.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\GraphicsDevice.hpp">
@@ -116,19 +137,10 @@
     <ClInclude Include="src\Graphics\Renderer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\Sampler.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\Texture.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene\Object.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Scene.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Material.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\ConstantBuffer.hpp">
@@ -149,22 +161,48 @@
     <ClInclude Include="src\Platform\Window.hpp">
       <Filter>Header Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="src\Application\Application.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\Shader.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graphics\IBind.hpp">
       <Filter>Header Files\Graphics\Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\Material.hpp">
+      <Filter>Header Files\Graphics\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Mesh.hpp">
+      <Filter>Header Files\Graphics\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Texture.hpp">
+      <Filter>Header Files\Graphics\Geometry\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Sampler.hpp">
+      <Filter>Header Files\Graphics\Geometry\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Shader.hpp">
+      <Filter>Header Files\Graphics\Geometry\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\Application.hpp">
+      <Filter>Entrypoint</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Transform.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Shaders\PixelShader.hlsl">
+    <FxCompile Include="src\Shaders\TexturePS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="src\Shaders\VertexShader.hlsl">
+    <FxCompile Include="src\Shaders\TextureVS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="src\Shaders\ColorPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="src\Shaders\ColorVS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\textures\StoneBricksSplitface001\StoneBricksSplitface001_COL_1K.jpg">
+      <Filter>Resource Files\Textures\StoneBricksSplitface001</Filter>
+    </Image>
   </ItemGroup>
 </Project>

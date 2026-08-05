@@ -98,7 +98,9 @@ void Renderer::Draw( Object* object ) noexcept
 
 	object->mesh->vB.Bind();
 	object->mesh->iB.Bind();
-	object->material->shader->Bind();
+	object->material->shader.Bind();
+	object->material->texture.Bind();
+	object->material->sampler.Bind();
 	m_worldCBuffer->Bind();
 	m_viewprojCBuffer->Bind();
 
