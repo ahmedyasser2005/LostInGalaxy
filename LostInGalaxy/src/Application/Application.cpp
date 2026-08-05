@@ -72,43 +72,51 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	*/
 
 	// Assets
-	std::array<Vertex, 8> vertices = {
-		// Front Face Corners (Z = -0.5)
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2{ 0.0f, 1.0f } /*{ 255,   0,   0, 255 }*/ }, // 0: Bottom-Left-Front  (Red)		
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2{ 0.0f, 0.0f } /*{   0, 255,   0, 255 }*/ }, // 1: Top-Left-Front     (Green)	
-		Vertex{ DirectX::XMFLOAT3( 0.5f,   0.5f, -0.5f ), DirectX::XMFLOAT2{ 1.0f, 0.0f } /*{   0,   0, 255, 255 }*/ }, // 2: Top-Right-Front    (Blue)		
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  -0.5f, -0.5f ), DirectX::XMFLOAT2{ 1.0f, 1.0f } /*{ 255, 255,   0, 255 }*/ }, // 3: Bottom-Right-Front (Yellow)
-
-		// Back Face Corners (Z = 0.5)
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2{ 0.0f, 1.0f } /*{ 255,   0, 255, 255 }*/ }, // 4: Bottom-Left-Back  (Magenta)
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2{ 0.0f, 0.0f } /*{   0, 255, 255, 255 }*/ }, // 5: Top-Left-Back     (Cyan)
-		Vertex{ DirectX::XMFLOAT3( 0.5f,   0.5f,  0.5f ), DirectX::XMFLOAT2{ 1.0f, 0.0f } /*{ 255, 255, 255, 255 }*/ }, // 6: Top-Right-Back    (White)
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  -0.5f,  0.5f ), DirectX::XMFLOAT2{ 1.0f, 1.0f } /*{   0,   0,   0, 255 }*/ }  // 7: Bottom-Right-Back (Black)
+	std::array<Vertex, 24> vertices = {
+		// Front Face (Z = -0.5f)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 0
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 1
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 2
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 3
+		// Back Face (Z = +0.5f)
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 4
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 5
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 6
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 7
+		// Top Face (Y = +0.5f)
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 8
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 9
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 10
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 11
+		// Bottom Face (Y = -0.5f)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 12
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 13
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 14
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 15
+		// Left Face (X = -0.5f)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 16
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 17
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 18
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 19
+		// Right Face (X = +0.5f)
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 20
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 21
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 22
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }  // 23
 	};
 	std::array<uint32_t, 36> indices = {
 		// Front Face
-		0, 1, 2,
-		0, 2, 3,
-
+		0, 1, 2,		0, 2, 3,
 		// Back Face
-		4, 6, 5,
-		4, 7, 6,
-
+		4, 5, 6,		4, 6, 7,
 		// Top Face
-		1, 5, 6,
-		1, 6, 2,
-
+		8, 9, 10,		8, 10, 11,
 		// Bottom Face
-		4, 0, 3,
-		4, 3, 7,
-
+		12, 13, 14,		12, 14, 15,
 		// Left Face
-		4, 1, 0,
-		4, 5, 1,
-
+		16, 17, 18,		16, 18, 19,
 		// Right Face
-		3, 2, 6,
-		3, 6, 7
+		20, 21, 22,		20, 22, 23
 	};
 
 	m_blockMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), vertices, indices );
@@ -164,50 +172,63 @@ void Application::Update() noexcept
 	{
 		m_camera->transform.Z( m_camera->transform.Z() + (15.0f * m_deltaTime) );
 	}
-	if( m_input.IsKeyPressed( 'S' ) )
-	{
-		m_camera->transform.Z( m_camera->transform.Z() - (15.0f * m_deltaTime) );
-	}
-
-
 	if( m_input.IsKeyPressed( 'A' ) )
 	{
 		m_camera->transform.X( m_camera->transform.X() - (15.0f * m_deltaTime) );
+	}
+	if( m_input.IsKeyPressed( 'S' ) )
+	{
+		m_camera->transform.Z( m_camera->transform.Z() - (15.0f * m_deltaTime) );
 	}
 	if( m_input.IsKeyPressed( 'D' ) )
 	{
 		m_camera->transform.X( m_camera->transform.X() + (15.0f * m_deltaTime) );
 	}
 
-
-	if( m_input.IsKeyPressed( 'Z' ) )
-	{
-		m_camera->transform.Y( m_camera->transform.Y() + (15.0f * m_deltaTime) );
-	}
 	if( m_input.IsKeyPressed( 'X' ) )
 	{
 		m_camera->transform.Y( m_camera->transform.Y() - (15.0f * m_deltaTime) );
 	}
-
-
+	if( m_input.IsKeyPressed( 'Z' ) )
+	{
+		m_camera->transform.Y( m_camera->transform.Y() + (15.0f * m_deltaTime) );
+	}
 
 	if( m_input.IsKeyPressed( 'Q' ) )
 	{
-		m_cube->transform.RX( m_cube->transform.RX() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
-		//m_camera->transform.RZ( m_camera->transform.RZ() - (5.0f * m_deltaTime) ); // Rotate Around Z axis (ROLL)
+		m_camera->transform.RY( m_camera->transform.RY() - (5.0f * m_deltaTime) ); // Rotate Around Y axis (YAW)
 	}
 	if( m_input.IsKeyPressed( 'E' ) )
 	{
-		m_cube->transform.RX( m_cube->transform.RX() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
-		//m_camera->transform.RZ( m_camera->transform.RZ() + (5.0f * m_deltaTime) ); // Rotate Around Z axis (ROLL)
+		m_camera->transform.RY( m_camera->transform.RY() + (5.0f * m_deltaTime) ); // Rotate Around Y axis (YAW)
+	}
+	if( m_input.IsKeyPressed( 'T' ) )
+	{
+		m_camera->transform.RX( m_camera->transform.RX() - (5.0f * m_deltaTime) ); // Rotate Around X axis (PITCH)
+	}
+	if( m_input.IsKeyPressed( 'R' ) )
+	{
+		m_camera->transform.RX( m_camera->transform.RX() + (5.0f * m_deltaTime) ); // Rotate Around X axis (PITCH)
 	}
 
-	const float x = (float)m_input.GetMouseDeltaX() * 0.5f * m_deltaTime;
-	const float y = (float)m_input.GetMouseDeltaY() * 0.5f * m_deltaTime;
 
-	m_camera->transform.RotXYZ( m_camera->transform.RX() + y, // rotate around X axis (Pitch)
-								m_camera->transform.RY() + x, // rotate around Y axis (Yaw)
-								m_camera->transform.RZ() ); // rotate around Z axis (Roll)
+
+	if( m_input.IsKeyPressed( 'G' ) )
+	{
+		m_cube->transform.RX( m_cube->transform.RX() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+	}
+	if( m_input.IsKeyPressed( 'H' ) )
+	{
+		m_cube->transform.RX( m_cube->transform.RX() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+	}
+
+
+	//const float x = (float)m_input.GetMouseDeltaX() * 0.5f * m_deltaTime;
+	//const float y = (float)m_input.GetMouseDeltaY() * 0.5f * m_deltaTime;
+
+	//m_camera->transform.RotXYZ( m_camera->transform.RX() + y, // rotate around X axis (Pitch)
+	//							m_camera->transform.RY() + x, // rotate around Y axis (Yaw)
+	//							m_camera->transform.RZ() ); // rotate around Z axis (Roll)
 
 }
 
