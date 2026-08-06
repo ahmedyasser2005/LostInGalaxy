@@ -250,6 +250,12 @@
     <FxCompile Include="src\Shaders\ColorVS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="FlatShadingVS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="FlatShadingPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\StoneBricksSplitface001\StoneBricksSplitface001_COL_1K.jpg">

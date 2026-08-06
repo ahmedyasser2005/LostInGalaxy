@@ -52,7 +52,7 @@ Renderer::Renderer( Window* window ) :
 	assert( !FAILED( hr ) );
 
 	m_worldCBuffer = std::make_unique<ConstantBuffer<DirectX::XMMATRIX>>( m_device.get(), 0u );
-	m_viewprojCBuffer = std::make_unique<ConstantBuffer<DirectX::XMMATRIX>>( m_device.get(), 1u );
+	m_viewprojCBuffer = std::make_unique<ConstantBuffer<ViewProjCB>>( m_device.get(), 1u );
 
 	const D3D11_VIEWPORT vp = {
 		.Width = static_cast<FLOAT>(window->GetWidth()),
@@ -65,8 +65,12 @@ Renderer::Renderer( Window* window ) :
 
 void Renderer::Render( Scene* scene ) noexcept
 {
-	DirectX::XMMATRIX viewproj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewProjMatrix() );
-	m_viewprojCBuffer->Update( viewproj );
+	ViewProjCB viewProj = {
+		.view = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewMatrix() ),
+		.proj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetProjectionMatrix() ),
+	};
+
+	m_viewprojCBuffer->Update( viewProj );
 
 	for( auto* object : scene->GetObjects() )
 	{

@@ -1,32 +1,32 @@
 #include "pch.h"
 #include "Camera.hpp"
 
-DirectX::XMMATRIX Camera::GetViewProjMatrix() noexcept
+//DirectX::XMMATRIX Camera::GetViewProjMatrix() noexcept
+//{
+//	using namespace DirectX;
+//
+//	const bool viewUpdated = UpdateView();
+//	const bool projUpdated = UpdateProjection();
+//
+//	if( viewUpdated || projUpdated )
+//	{
+//		XMMATRIX view = XMLoadFloat4x4( &m_viewMatrixStorage );
+//		XMMATRIX proj = XMLoadFloat4x4( &m_projMatrixStorage );
+//
+//		XMMATRIX viewProjMatrix = XMMatrixMultiply( view, proj );
+//		XMStoreFloat4x4( &m_viewProjMatrixStorage, viewProjMatrix );
+//
+//		return viewProjMatrix;
+//	}
+//
+//	return XMLoadFloat4x4( &m_viewProjMatrixStorage );
+//}
+
+DirectX::XMMATRIX Camera::GetViewMatrix() noexcept
 {
 	using namespace DirectX;
 
-	const bool viewUpdated = UpdateView();
-	const bool projUpdated = UpdateProjection();
-
-	if( viewUpdated || projUpdated )
-	{
-		XMMATRIX view = XMLoadFloat4x4( &m_viewMatrixStorage );
-		XMMATRIX proj = XMLoadFloat4x4( &m_projMatrixStorage );
-
-		XMMATRIX viewProjMatrix = XMMatrixMultiply( view, proj );
-		XMStoreFloat4x4( &m_viewProjMatrixStorage, viewProjMatrix );
-
-		return viewProjMatrix;
-	}
-
-	return XMLoadFloat4x4( &m_viewProjMatrixStorage );
-}
-
-bool Camera::UpdateView() noexcept
-{
-	using namespace DirectX;
-
-	if( !transform.IsDirty() ) return false; // false = no update needed
+	if( !transform.IsDirty() ) return XMLoadFloat4x4( &m_viewMatrixStorage );
 
 	XMMATRIX translation = XMMatrixTranslationFromVector( XMVectorNegate( transform.XYZ() ) );
 	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector( transform.PitchYawRoll() );
@@ -41,26 +41,25 @@ bool Camera::UpdateView() noexcept
 
 	transform.CleanDirt();
 
-	return true; // true = updated
+	return viewMatrix;
 }
 
-bool Camera::UpdateProjection() noexcept
+DirectX::XMMATRIX Camera::GetProjectionMatrix() noexcept
 {
 	using namespace DirectX;
 
-	if( !m_isProjDirty ) return false; // false = no update needed
+	if( !m_isProjDirty ) return XMLoadFloat4x4( &m_projMatrixStorage );
 
 	XMMATRIX projMatrix = XMMatrixPerspectiveFovLH( XMConvertToRadians( m_fovAngleY ),
 													m_aspectRatio,
 													m_nearZ,
 													m_farZ );
 
-
 	XMStoreFloat4x4( &m_projMatrixStorage, projMatrix );
 
 	m_isProjDirty = false;
 
-	return true;  // true = updated
+	return projMatrix;
 }
 
 void Camera::UpdateProjection( float angle, uint16_t width, uint16_t height, float nearZ, float farZ ) noexcept

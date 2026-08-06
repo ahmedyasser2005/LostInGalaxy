@@ -12,7 +12,10 @@ public:
 	void SetFarZ( float value ) noexcept;
 	void UpdateProjection( float angle, uint16_t width, uint16_t height, float nearZ, float farZ ) noexcept;
 
-	[[nodiscard]] DirectX::XMMATRIX GetViewProjMatrix() noexcept;
+	//[[nodiscard]] DirectX::XMMATRIX GetViewProjMatrix() noexcept;
+	[[nodiscard]] DirectX::XMMATRIX GetViewMatrix() noexcept;
+	[[nodiscard]] DirectX::XMMATRIX GetProjectionMatrix() noexcept;
+
 	[[nodiscard]] float GetFovAngleY() const noexcept;
 	[[nodiscard]] float GetAspectRatio() const noexcept;
 	[[nodiscard]] float GetNearZ() const noexcept;
@@ -30,8 +33,6 @@ public:
 	void Roll( float delta, float dt ) noexcept;
 
 private:
-	bool UpdateView() noexcept;
-	bool UpdateProjection() noexcept;
 
 public:
 	Transform transform = {};
@@ -39,7 +40,7 @@ public:
 	float sensitivity = 1.0f;
 
 private:
-	DirectX::XMFLOAT4X4 m_viewProjMatrixStorage = {};
+	//DirectX::XMFLOAT4X4 m_viewProjMatrixStorage = {};
 	DirectX::XMFLOAT4X4 m_viewMatrixStorage = {};
 	DirectX::XMFLOAT4X4 m_projMatrixStorage = {};
 

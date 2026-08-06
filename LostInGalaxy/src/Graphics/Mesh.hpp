@@ -8,6 +8,7 @@
 struct Vertex {
 	DirectX::XMFLOAT3 position;
 	//std::array<uint8_t, 4> color;
+	DirectX::XMFLOAT3 normal;
 	DirectX::XMFLOAT2 uv;
 };
 

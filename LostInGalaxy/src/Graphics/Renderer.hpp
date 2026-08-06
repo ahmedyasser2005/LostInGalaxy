@@ -4,6 +4,11 @@
 #include "Graphics/GraphicsDevice.hpp"
 #include "Graphics/ConstantBuffer.hpp"
 
+struct ViewProjCB {
+	DirectX::XMMATRIX view;
+	DirectX::XMMATRIX proj;
+};
+
 class Renderer final {
 public:
 	Renderer( class Window* window );
@@ -27,6 +32,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>> m_worldCBuffer;
-	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>> m_viewprojCBuffer;
+	std::unique_ptr<ConstantBuffer<ViewProjCB>> m_viewprojCBuffer;
 
 };

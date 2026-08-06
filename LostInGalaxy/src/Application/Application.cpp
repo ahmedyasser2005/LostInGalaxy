@@ -81,36 +81,36 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 
 	// Assets
 	std::array<Vertex, 24> vertices = {
-		// Front Face (Z = -0.5f)
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 0
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 1
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 2
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 3
-		// Back Face (Z = +0.5f)
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 4
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 5
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 6
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 7
-		// Top Face (Y = +0.5f)
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 8
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 9
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 10
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 11
-		// Bottom Face (Y = -0.5f)
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 12
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 13
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 14
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 15
-		// Left Face (X = -0.5f)
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 16
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 17
-		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 18
-		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 19
-		// Right Face (X = +0.5f)
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ),  DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 20
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ),  DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 21
-		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 22
-		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ),  DirectX::XMFLOAT2( 1.0f, 1.0f ) }  // 23
+		// Front Face (Z = -0.5f) -> Normal: (0, 0, -1)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f, -1.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 0
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f, -1.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 1
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f, -1.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 2
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f, -1.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 3
+		// Back Face (Z = +0.5f) -> Normal: (0, 0, 1)
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f,  1.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 4
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f,  1.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 5
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f,  1.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 6
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  0.0f,  1.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 7
+		// Top Face (Y = +0.5f) -> Normal: (0, 1, 0)
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  1.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 8
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  1.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 9
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f,  1.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 10
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f,  1.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 11
+		// Bottom Face (Y = -0.5f) -> Normal: (0, -1, 0)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f, -1.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 12
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f, -1.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 13
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( 0.0f, -1.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 14
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( 0.0f, -1.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 15
+		// Left Face (X = -0.5f) -> Normal: (-1, 0, 0)
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( -1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 16
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( -1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 17
+		Vertex{ DirectX::XMFLOAT3( -0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( -1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 18
+		Vertex{ DirectX::XMFLOAT3( -0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( -1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }, // 19
+		// Right Face (X = +0.5f) -> Normal: (1, 0, 0)
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f, -0.5f ), DirectX::XMFLOAT3( 1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 1.0f ) }, // 20
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f, -0.5f ), DirectX::XMFLOAT3( 1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 0.0f, 0.0f ) }, // 21
+		Vertex{ DirectX::XMFLOAT3( 0.5f,  0.5f,  0.5f ), DirectX::XMFLOAT3( 1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 0.0f ) }, // 22
+		Vertex{ DirectX::XMFLOAT3( 0.5f, -0.5f,  0.5f ), DirectX::XMFLOAT3( 1.0f,  0.0f,  0.0f ), DirectX::XMFLOAT2( 1.0f, 1.0f ) }  // 23
 	};
 	std::array<uint32_t, 36> indices = {
 		// Front Face
@@ -129,7 +129,7 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 
 	m_blockMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), vertices, indices );
 	m_blockMaterial = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(), L"TextureVS.cso", L"TexturePS.cso" ),
+		Shader( m_renderer->GetGraphicsDevice(), L"FlatShadingVS.cso", L"FlatShadingPS.cso" ),
 		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
 		Sampler( m_renderer->GetGraphicsDevice(), 0u )
 	);
