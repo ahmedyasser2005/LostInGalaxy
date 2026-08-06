@@ -65,8 +65,6 @@ Renderer::Renderer( Window* window ) :
 
 void Renderer::Render( Scene* scene ) noexcept
 {
-	BeginFrame();
-
 	DirectX::XMMATRIX viewproj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewProjMatrix() );
 	m_viewprojCBuffer->Update( viewproj );
 
@@ -74,8 +72,6 @@ void Renderer::Render( Scene* scene ) noexcept
 	{
 		Draw( object );
 	}
-
-	EndFrame();
 }
 
 void Renderer::BeginFrame() noexcept

@@ -9,9 +9,17 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_renderer( std::make_unique<Renderer>( m_window.get() ) ),
 	m_input( m_window->GetInput() )
 {
-	HRESULT hr = CoInitializeEx( nullptr, COINIT_MULTITHREADED );
-	assert( !FAILED( hr ) );
+	HRESULT hr = S_OK; // CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 
+	// Setup ImGui //
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	BOOL result = TRUE; // In release mode, asserts are removed so whatever inside the assert is also removed!, that was a bug I encountered here :/
+	result = ImGui_ImplWin32_Init( reinterpret_cast<void*>(m_window->GetHandle()) );
+	assert( result );
+	result = ImGui_ImplDX11_Init( m_renderer->GetGraphicsDevice()->GetDevice(), m_renderer->GetGraphicsDevice()->GetContext() );
+	assert( result );
+	/////////////////
 
 	Image img;
 	hr = DirectX::LoadFromWICFile(
@@ -131,14 +139,21 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 
 	// cube
 	m_cube = std::make_unique<Object>( m_blockMesh, m_blockMaterial );
-	m_cube->transform.PosXYZ( 0.0f, 0.0f, 0.0f );
+	m_cube->transform.XYZ( 0.0f, 0.0f, 0.0f );
 	uint8_t cubeIndex = m_scene->AddObject( m_cube.get() ); // not saved
 
 	// camera
 	m_camera = std::make_unique<Camera>();
-	m_camera->transform.PosXYZ( 0.0f, 0.0f, -5.0f );
+	m_camera->transform.XYZ( 0.0f, 0.0f, -5.0f );
 	uint8_t activeCamIndex = m_scene->AddCamera( m_camera.get() ); // not saved
 	m_scene->SetActiveCameraIndex( activeCamIndex );
+}
+
+Application::~Application() noexcept
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 const int Application::Run()
@@ -150,10 +165,22 @@ const int Application::Run()
 		if( m_exitCode = m_window->ProcessMessages() )
 		{
 			Exit();
+			break;
 		}
 
+		// Start the Dear ImGui frame //
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+		////////////////////////////////
 		Update();
+		m_renderer->BeginFrame();
 		Render();
+		// ImGUI Render //
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+		//////////////////
+		m_renderer->EndFrame();
 
 		m_input.Reset();
 	}
@@ -168,71 +195,120 @@ void Application::Exit() noexcept
 
 void Application::Update() noexcept
 {
+	ImGuiIO& imguiIO = ImGui::GetIO();
+
+	if( imguiIO.WantCaptureKeyboard || imguiIO.WantCaptureMouse )
+	{
+		return;
+	}
+
+	// Camera Controls
+	m_camera->Pitch( static_cast<float>(m_input.GetMouseDeltaY()), m_deltaTime );
+	m_camera->Yaw( static_cast<float>(m_input.GetMouseDeltaX()), m_deltaTime );
+
 	if( m_input.IsKeyPressed( 'W' ) )
 	{
-		m_camera->transform.Z( m_camera->transform.Z() + (15.0f * m_deltaTime) );
+		m_camera->MoveForward( m_deltaTime );
 	}
 	if( m_input.IsKeyPressed( 'A' ) )
 	{
-		m_camera->transform.X( m_camera->transform.X() - (15.0f * m_deltaTime) );
+		m_camera->MoveLeft( m_deltaTime );
 	}
 	if( m_input.IsKeyPressed( 'S' ) )
 	{
-		m_camera->transform.Z( m_camera->transform.Z() - (15.0f * m_deltaTime) );
+		m_camera->MoveBackward( m_deltaTime );
 	}
 	if( m_input.IsKeyPressed( 'D' ) )
 	{
-		m_camera->transform.X( m_camera->transform.X() + (15.0f * m_deltaTime) );
-	}
-
-	if( m_input.IsKeyPressed( 'X' ) )
-	{
-		m_camera->transform.Y( m_camera->transform.Y() - (15.0f * m_deltaTime) );
+		m_camera->MoveRight( m_deltaTime );
 	}
 	if( m_input.IsKeyPressed( 'Z' ) )
 	{
-		m_camera->transform.Y( m_camera->transform.Y() + (15.0f * m_deltaTime) );
+		m_camera->MoveUp( m_deltaTime );
+	}
+	if( m_input.IsKeyPressed( 'X' ) )
+	{
+		m_camera->MoveDown( m_deltaTime );
 	}
 
 	if( m_input.IsKeyPressed( 'Q' ) )
 	{
-		m_camera->transform.RY( m_camera->transform.RY() - (5.0f * m_deltaTime) ); // Rotate Around Y axis (YAW)
+		m_camera->Yaw( -5.0f, m_deltaTime ); // Rotate Around Y axis(Yaw)
 	}
 	if( m_input.IsKeyPressed( 'E' ) )
 	{
-		m_camera->transform.RY( m_camera->transform.RY() + (5.0f * m_deltaTime) ); // Rotate Around Y axis (YAW)
+		m_camera->Yaw( 5.0f, m_deltaTime ); // Rotate Around Y axis (Yaw)
 	}
 	if( m_input.IsKeyPressed( 'T' ) )
 	{
-		m_camera->transform.RX( m_camera->transform.RX() - (5.0f * m_deltaTime) ); // Rotate Around X axis (PITCH)
+		m_camera->Pitch( -5.0f, m_deltaTime ); // Rotate Around X axis (Pitch)
 	}
 	if( m_input.IsKeyPressed( 'R' ) )
 	{
-		m_camera->transform.RX( m_camera->transform.RX() + (5.0f * m_deltaTime) ); // Rotate Around X axis (PITCH)
+		m_camera->Pitch( 5.0f, m_deltaTime ); // Rotate Around X axis (Pitch)
 	}
-
-
-
+	if( m_input.IsKeyPressed( 'F' ) )
+	{
+		m_camera->Roll( -5.0f, m_deltaTime ); // Rotate Around Z axis (Roll)
+	}
 	if( m_input.IsKeyPressed( 'G' ) )
 	{
-		m_cube->transform.RX( m_cube->transform.RX() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+		m_camera->Roll( 5.0f, m_deltaTime ); // Rotate Around Z axis (Roll)
 	}
-	if( m_input.IsKeyPressed( 'H' ) )
+
+
+	// Cube Controls
+	if( m_input.IsKeyPressed( 'I' ) )
 	{
-		m_cube->transform.RX( m_cube->transform.RX() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+		m_cube->transform.Pitch( m_cube->transform.Pitch() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
 	}
-
-
-	//const float x = (float)m_input.GetMouseDeltaX() * 0.5f * m_deltaTime;
-	//const float y = (float)m_input.GetMouseDeltaY() * 0.5f * m_deltaTime;
-
-	//m_camera->transform.RotXYZ( m_camera->transform.RX() + y, // rotate around X axis (Pitch)
-	//							m_camera->transform.RY() + x, // rotate around Y axis (Yaw)
-	//							m_camera->transform.RZ() ); // rotate around Z axis (Roll)
+	if( m_input.IsKeyPressed( 'K' ) )
+	{
+		m_cube->transform.Pitch( m_cube->transform.Pitch() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+	}
+	if( m_input.IsKeyPressed( 'J' ) )
+	{
+		m_cube->transform.Yaw( m_cube->transform.Yaw() + (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
+	}
+	if( m_input.IsKeyPressed( 'L' ) )
+	{
+		m_cube->transform.Yaw( m_cube->transform.Yaw() - (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
+	}
 
 }
 
 void Application::Render() noexcept
 {
 	m_renderer->Render( m_scene.get() );
+
+	float xyz[3] = { m_camera->transform.X(),m_camera->transform.Y(), m_camera->transform.Z() };
+	float pyr[3] = { m_camera->transform.Pitch(),m_camera->transform.Yaw(), m_camera->transform.Roll() };
+	float fovAngleY = m_camera->GetFovAngleY();
+	float aspectRatio = m_camera->GetAspectRatio();
+	float nearZ = m_camera->GetNearZ();
+	float farZ = m_camera->GetFarZ();
+
+	// ImGui UI
+	ImGui::Begin( "Camera" );
+	ImGui::SliderFloat3( "Position", xyz, -25.0f, 25.0f );
+	ImGui::SliderFloat3( "Orientation", pyr, -1.0f, 1.0f );
+	if( ImGui::Button( "Reset" ) )
+	{
+		xyz[0] = 0.0f, xyz[1] = 0.0f, xyz[2] = -5.0f;
+		pyr[0] = 0.0f, pyr[1] = 0.0f, pyr[2] = 0.0f;
+	}
+	ImGui::SliderFloat( "Sensitivity", &m_camera->sensitivity, 0.000001f, 5.0f );
+	ImGui::SliderFloat( "Speed", &m_camera->speed, 0.000001f, 50.0f );
+	ImGui::SliderFloat( "Fov", &fovAngleY, 0.001f, 360.0f );
+	ImGui::SliderFloat( "Aspect Ratio", &aspectRatio, 0.001f, 360.0f );
+	ImGui::SliderFloat( "Near", &nearZ, 0.001f, 360.0f );
+	ImGui::SliderFloat( "Far", &farZ, 0.01f, 360.0f );
+	ImGui::End();
+
+	m_camera->transform.XYZ( xyz[0], xyz[1], xyz[2] );
+	m_camera->transform.PitchYawRoll( pyr[0], pyr[1], pyr[2] );
+	m_camera->SetFovAngleY( fovAngleY );
+	m_camera->SetAspectRatio( aspectRatio );
+	m_camera->SetNearZ( nearZ );
+	m_camera->SetFarZ( farZ );
 }

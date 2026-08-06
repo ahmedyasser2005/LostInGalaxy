@@ -7,8 +7,8 @@ DirectX::XMMATRIX Object::GetWorldMatrix() noexcept
 
 	if( !transform.IsDirty() ) return XMLoadFloat4x4( &m_worldMatrixStorage );
 
-	XMMATRIX s = XMMatrixScaling( transform.S(), transform.S(), transform.S() );
-	XMMATRIX r = XMMatrixRotationRollPitchYaw( transform.RX(), transform.RY(), transform.RZ() );
+	XMMATRIX s = XMMatrixScaling( transform.Scale(), transform.Scale(), transform.Scale() );
+	XMMATRIX r = XMMatrixRotationRollPitchYaw( transform.Pitch(), transform.Yaw(), transform.Roll() );
 	XMMATRIX t = XMMatrixTranslation( transform.X(), transform.Y(), transform.Z() );
 
 	XMMATRIX worldMatrix = XMMatrixMultiply( XMMatrixMultiply( s, r ), t );

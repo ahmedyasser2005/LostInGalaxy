@@ -14,12 +14,12 @@ public:
 	Renderer& operator= ( Renderer&& ) = delete;
 
 	void Render( class Scene* scene ) noexcept;
+	void BeginFrame() noexcept;
+	void EndFrame() noexcept;
 
 	[[nodiscard]] GraphicsDevice* GetGraphicsDevice() const noexcept;
 
 private:
-	void BeginFrame() noexcept;
-	void EndFrame() noexcept;
 	void Draw( class Object* object ) noexcept;
 
 	std::unique_ptr<GraphicsDevice> m_device;

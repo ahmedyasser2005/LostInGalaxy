@@ -99,8 +99,15 @@ LRESULT Window::HandleMsgThunk( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProcW( hwnd, msg, wParam, lParam );
 }
 
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+
+
 LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept
 {
+	if( ImGui_ImplWin32_WndProcHandler( hwnd, msg, wParam, lParam ) )
+		return true;
+
 	switch( msg )
 	{
 		case WM_KEYDOWN:	 m_input.OnKeyDown( static_cast<uint8_t>(wParam) ); break;

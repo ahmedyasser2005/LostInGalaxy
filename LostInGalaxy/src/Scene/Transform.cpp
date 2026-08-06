@@ -1,9 +1,15 @@
 #include "pch.h"
 #include "Transform.hpp"
 
-void Transform::PosXYZ( float x, float y, float z ) noexcept
+void Transform::XYZ( float x, float y, float z ) noexcept
 {
 	m_x = x, m_y = y, m_z = z;
+	m_isDirty = true;
+}
+
+void Transform::XYZ( DirectX::XMVECTOR pos ) noexcept
+{
+	m_x = pos.m128_f32[0], m_y = pos.m128_f32[1], m_z = pos.m128_f32[2];
 	m_isDirty = true;
 }
 
@@ -25,39 +31,49 @@ void Transform::Z( float z ) noexcept
 	m_isDirty = true;
 }
 
-void Transform::RotXYZ( float rx, float ry, float rz ) noexcept
+void Transform::PitchYawRoll( float pitch, float yaw, float roll ) noexcept
 {
-	m_rx = rx, m_ry = ry, m_rz = rz;
+	m_pitch = pitch, m_yaw = yaw, m_roll = roll;
 	m_isDirty = true;
 }
 
-void Transform::RX( float rx ) noexcept
+void Transform::Pitch( float pitch ) noexcept
 {
-	m_rx = rx;
+	m_pitch = pitch;
 	m_isDirty = true;
 }
 
-void Transform::RY( float ry ) noexcept
+void Transform::Yaw( float yaw ) noexcept
 {
-	m_ry = ry;
+	m_yaw = yaw;
 	m_isDirty = true;
 }
 
-void Transform::RZ( float rz ) noexcept
+void Transform::Roll( float roll ) noexcept
 {
-	m_rz = rz;
+	m_roll = roll;
 	m_isDirty = true;
 }
 
-void Transform::S( float s ) noexcept
+void Transform::Scale( float scale ) noexcept
 {
-	m_s = s;
+	m_scale = scale;
 	m_isDirty = true;
 }
 
 void Transform::CleanDirt() noexcept
 {
 	m_isDirty = true;
+}
+
+DirectX::XMVECTOR Transform::XYZ() noexcept
+{
+	return DirectX::XMVECTOR( { m_x, m_y, m_z } );
+}
+
+DirectX::XMVECTOR Transform::PitchYawRoll() noexcept
+{
+	return DirectX::XMVECTOR( { m_pitch, m_yaw, m_roll } );
 }
 
 float Transform::X() const noexcept
@@ -75,24 +91,24 @@ float Transform::Z() const noexcept
 	return m_z;
 }
 
-float Transform::RX() const noexcept
+float Transform::Pitch() const noexcept
 {
-	return m_rx;
+	return m_pitch;
 }
 
-float Transform::RY() const noexcept
+float Transform::Yaw() const noexcept
 {
-	return m_ry;
+	return m_yaw;
 }
 
-float Transform::RZ() const noexcept
+float Transform::Roll() const noexcept
 {
-	return m_rz;
+	return m_roll;
 }
 
-float Transform::S() const noexcept
+float Transform::Scale() const noexcept
 {
-	return m_s;
+	return m_scale;
 }
 
 

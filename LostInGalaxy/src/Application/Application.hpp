@@ -10,7 +10,7 @@
 class Application final {
 public:
 	Application( const wchar_t* title, uint32_t width, uint32_t height );
-	~Application() noexcept = default;
+	~Application() noexcept;
 	Application( const Application& ) = delete;
 	Application& operator=( const Application& ) = delete;
 	Application( Application&& ) = delete;

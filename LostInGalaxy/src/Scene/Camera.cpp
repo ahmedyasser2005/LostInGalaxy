@@ -28,19 +28,14 @@ bool Camera::UpdateView() noexcept
 
 	if( !transform.IsDirty() ) return false; // false = no update needed
 
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw( transform.RX(), transform.RY(), transform.RZ() );
-	XMVECTOR forward = XMVector3TransformNormal( XMVectorSet( 0.0f, 0.0f, 1.0f, 0.0f ), rotation ); // vec3 * mat3x3
+	XMMATRIX translation = XMMatrixTranslationFromVector( XMVectorNegate( transform.XYZ() ) );
+	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector( transform.PitchYawRoll() );
 
-	// IMPORTANT NOTE:
-	// I was trying to fix the relative axis movements
-	// so, for some reason, I tried to multiply the eye vector by the rotation matrix
-	// and I got an ORBIT camera!! what an accident :D
+	XMStoreFloat3( &m_rightVector, XMVector3Transform( g_XMIdentityR0, rotation ) );
+	XMStoreFloat3( &m_upVector, XMVector3Transform( g_XMIdentityR1, rotation ) );
+	XMStoreFloat3( &m_forwardVector, XMVector3Transform( g_XMIdentityR2, rotation ) );
 
-	XMVECTOR eye = XMVectorSet( transform.X(), transform.Y(), transform.Z(), 1.0f );
-	XMVECTOR at = XMVectorAdd( eye, forward );
-	XMVECTOR up = XMVector3TransformNormal( XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f ), rotation );
-
-	XMMATRIX viewMatrix = XMMatrixLookAtLH( eye, at, up );
+	XMMATRIX viewMatrix = translation * XMMatrixTranspose( rotation );
 
 	XMStoreFloat4x4( &m_viewMatrixStorage, viewMatrix );
 
@@ -126,4 +121,62 @@ float Camera::GetNearZ() const noexcept
 float Camera::GetFarZ() const noexcept
 {
 	return m_farZ;
+}
+
+// Controls
+void Camera::MoveForward( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR forward = XMLoadFloat3( &m_forwardVector );
+	transform.XYZ( XMVectorAdd( transform.XYZ(), forward * speed * dt ) );
+}
+
+void Camera::MoveBackward( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR forward = XMLoadFloat3( &m_forwardVector );
+	transform.XYZ( XMVectorSubtract( transform.XYZ(), forward * speed * dt ) );
+}
+
+void Camera::MoveRight( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR right = XMLoadFloat3( &m_rightVector );
+	transform.XYZ( XMVectorAdd( transform.XYZ(), right * speed * dt ) );
+}
+
+void Camera::MoveLeft( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR right = XMLoadFloat3( &m_rightVector );
+	transform.XYZ( XMVectorSubtract( transform.XYZ(), right * speed * dt ) );
+}
+
+void Camera::MoveUp( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR up = XMLoadFloat3( &m_upVector );
+	transform.XYZ( XMVectorAdd( transform.XYZ(), up * speed * dt ) );
+}
+
+void Camera::MoveDown( float dt ) noexcept
+{
+	using namespace DirectX;
+	XMVECTOR up = XMLoadFloat3( &m_upVector );
+	transform.XYZ( XMVectorSubtract( transform.XYZ(), up * speed * dt ) );
+}
+
+void Camera::Pitch( float delta, float dt ) noexcept
+{
+	transform.Pitch( transform.Pitch() + (delta * sensitivity * dt) );
+}
+
+void Camera::Yaw( float delta, float dt ) noexcept
+{
+	transform.Yaw( transform.Yaw() + (delta * sensitivity * dt) );
+}
+
+void Camera::Roll( float delta, float dt ) noexcept
+{
+	transform.Roll( transform.Roll() + (delta * sensitivity * dt) );
 }
