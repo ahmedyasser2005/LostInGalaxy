@@ -5,13 +5,16 @@ cbuffer WMat : register(b0)
 
 cbuffer VPMat : register(b1)
 {
-    float4x4 viewproj;
+    float4x4 view;
+    float4x4 proj;
 };
 
 struct VSIn
 {
     float3 position : POSITION;
-    float4 color : COLOR;
+    float3 normal : NORMAL;
+    float2 uv : UV;
+    //float4 color : COLOR;
 };
 
 struct VSOut
@@ -24,8 +27,10 @@ VSOut main(VSIn input)
 {
     VSOut output;
 
-    output.position = mul(mul(float4(input.position, 1.0f), world), viewproj);
-    output.color = input.color;
+    float4x4 worldView = mul(world, view);
+
+    output.position = mul(mul(float4(input.position, 1.0f), worldView), proj);
+    output.color = float4(input.position, 1.0f);
 
     return output;
 }

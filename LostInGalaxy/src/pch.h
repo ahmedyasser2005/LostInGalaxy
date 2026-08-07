@@ -36,8 +36,12 @@
 #include <utility>
 #include <cmath>
 #include <optional>
+#include <filesystem>
+#include <unordered_map>
+#include <system_error>
 
 // ImGUI
 #include <imgui.h>
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
+

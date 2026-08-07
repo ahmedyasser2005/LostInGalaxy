@@ -19,7 +19,9 @@ struct VSIn
 struct VSOut
 {
     float4 position : SV_POSITION;
-    float diffuse : DIFFUSE;
+    float3 normal : NORMAL;
+    float3 light : LIGHT;
+    //float diffuse : DIFFUSE;
     float2 uv : UV;
 };
 
@@ -30,13 +32,16 @@ VSOut main(VSIn input)
     float4x4 worldView = mul(world, view);
 
     output.position = mul(mul(float4(input.position, 1.0f), worldView), proj);
+    output.normal = mul(float4(input.normal, 0.0f), worldView).xyz;
     output.uv = input.uv;
-    
-    float3 worldLightDir = float3(0.0f, 0.0f, 5.0f);
-    float3 L = normalize(mul(float4(worldLightDir, 0.0f), view).xyz);
-    float3 N = normalize(mul(float4(input.normal, 0.0f), worldView).xyz);
 
-    output.diffuse = max(dot(N, L), 0.0f);
+    float3 worldLightDir = float3(0.0f, 0.0f, 5.0f);
+    output.light = mul(float4(worldLightDir, 0.0f), view).xyz;
+    
+    //float3 worldLightDir = float3(0.0f, 0.0f, 5.0f);
+    //float3 L = normalize(mul(float4(worldLightDir, 0.0f), view).xyz);
+    //float3 N = normalize(mul(float4(input.normal, 0.0f), worldView).xyz);
+    //output.diffuse = max(dot(N, L), 0.0f);
 
     return output;
 }

@@ -1,66 +1,102 @@
 #include "pch.h"
 #include "Scene.hpp"
 
-// This implementation is a complete mess, and I will further refactor and improve it later
-
-uint8_t Scene::AddCamera( Camera* camera ) noexcept
+uint32_t Scene::AddObject( Object& object ) noexcept
 {
-	// TODO: Prevent adding the existing cameras.
-
-	if( camera ) m_cameras.emplace_back( camera );
-	return (uint8_t)(m_cameras.size() - 1);
-
+	m_objects.emplace_back( std::move( object ) );
+	return static_cast<uint32_t>(m_objects.size() - 1);
 }
 
-uint8_t Scene::AddObject( Object* object ) noexcept
+uint32_t Scene::ToggleObject() noexcept
 {
-	// TODO: Prevent adding the existing objects.
-
-	if( object ) m_objects.emplace_back( object );
-	return (uint8_t)(m_objects.size() - 1);
-
+	m_activeObjectIndex = (m_activeObjectIndex + 1) % (uint32_t)m_objects.size();
+	return m_activeObjectIndex;
 }
 
-uint8_t Scene::ToggleCamera() noexcept
+bool Scene::SetActiveObjectIndex( uint32_t index ) noexcept
 {
-	return m_activeCameraIndex = (m_activeCameraIndex + 1) % (uint8_t)m_cameras.size();
+	if( index < 0 || index >= m_objects.size() )
+		return false;
+
+	m_activeObjectIndex = index;
+	return true;
 }
 
-void Scene::SetActiveCameraIndex( uint8_t index ) noexcept
-{
-	if( index >= 0 && index < m_cameras.size() )
-	{
-		m_activeCameraIndex = index;
-	}
-}
-
-const std::vector<Object*>& Scene::GetObjects() const noexcept
+std::vector<Object>& Scene::GetObjects() noexcept
 {
 	return m_objects;
 }
 
-const std::vector<Camera*>& Scene::GetCameras() const noexcept
+std::optional<uint32_t> Scene::GetActiveObjectIndex() const noexcept
+{
+	if( m_objects.empty() )
+		return std::nullopt;
+
+	return m_activeObjectIndex;
+}
+
+Object* Scene::GetActiveObject() noexcept
+{
+	if( m_objects.empty() )
+		return nullptr;
+
+	return &m_objects[m_activeObjectIndex];
+}
+
+Object* Scene::GetObjectAt( uint32_t index ) noexcept
+{
+	if( index < 0 || index >= m_objects.size() )
+		return nullptr;
+
+	return &m_objects[index];
+}
+
+uint8_t Scene::AddCamera( Camera& camera ) noexcept
+{
+	m_cameras.emplace_back( std::move( camera ) );
+	return static_cast<uint8_t>(m_cameras.size() - 1);
+}
+
+uint8_t Scene::ToggleCamera() noexcept
+{
+	m_activeCameraIndex = (m_activeCameraIndex + 1) % (uint8_t)m_cameras.size();
+	return m_activeCameraIndex;
+}
+
+bool Scene::SetActiveCameraIndex( uint8_t index ) noexcept
+{
+	if( index < 0 || index >= m_cameras.size() )
+		return false;
+
+	m_activeCameraIndex = index;
+	return true;
+}
+
+std::vector<Camera>& Scene::GetCameras() noexcept
 {
 	return m_cameras;
 }
 
-Camera* Scene::GetActiveCamera() const noexcept
+std::optional<uint8_t> Scene::GetActiveCameraIndex() const noexcept
 {
-	if( m_cameras.empty() ) return nullptr;
-	return m_cameras[m_activeCameraIndex];
-}
+	if( m_cameras.empty() )
+		return std::nullopt;
 
-uint8_t Scene::GetActiveCameraIndex() const noexcept
-{
-	assert( !m_cameras.empty() );
 	return m_activeCameraIndex;
 }
 
-Camera* Scene::GetCameraAt( uint8_t index ) const noexcept
+Camera* Scene::GetActiveCamera() noexcept
 {
-	if( index >= 0 && index < m_cameras.size() )
-	{
-		return m_cameras[index];
-	}
-	return nullptr;
+	if( m_cameras.empty() )
+		return nullptr;
+
+	return &m_cameras[m_activeCameraIndex];
+}
+
+Camera* Scene::GetCameraAt( uint8_t index ) noexcept
+{
+	if( index < 0 || index >= m_cameras.size() )
+		return nullptr;
+
+	return &m_cameras[index];
 }

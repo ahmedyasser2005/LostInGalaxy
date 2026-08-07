@@ -3,9 +3,14 @@
 #include "pch.h"
 #include "Graphics/IBind.hpp"
 
+struct ShaderFilename {
+	std::wstring vsPath;
+	std::wstring psPath;
+};
+
 class Shader final : public IBind {
 public:
-	Shader( GraphicsDevice* graphicsDevice, const wchar_t* vShaderFilename, const wchar_t* pShaderFilename );
+	Shader( GraphicsDevice* graphicsDevice, std::wstring_view vShaderFilename, std::wstring_view pShaderFilename );
 	~Shader() noexcept = default;
 	Shader( const Shader& ) = delete;
 	Shader& operator=( const Shader& ) = delete;

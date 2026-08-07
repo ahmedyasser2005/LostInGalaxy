@@ -72,7 +72,7 @@ void Renderer::Render( Scene* scene ) noexcept
 
 	m_viewprojCBuffer->Update( viewProj );
 
-	for( auto* object : scene->GetObjects() )
+	for( auto& object : scene->GetObjects() )
 	{
 		Draw( object );
 	}
@@ -91,20 +91,20 @@ void Renderer::EndFrame() noexcept
 	m_device->GetSwapChain()->Present( 1u, 0u );
 }
 
-void Renderer::Draw( Object* object ) noexcept
+void Renderer::Draw( Object& object ) noexcept
 {
-	DirectX::XMMATRIX world = DirectX::XMMatrixTranspose( object->GetWorldMatrix() );
+	DirectX::XMMATRIX world = DirectX::XMMatrixTranspose( object.GetWorldMatrix() );
 	m_worldCBuffer->Update( world );
 
-	object->mesh->vB.Bind();
-	object->mesh->iB.Bind();
-	object->material->shader.Bind();
-	object->material->texture.Bind();
-	object->material->sampler.Bind();
+	object.mesh->vB.Bind();
+	object.mesh->iB.Bind();
+	object.material->shader.Bind();
+	object.material->texture.Bind();
+	object.material->sampler.Bind();
 	m_worldCBuffer->Bind();
 	m_viewprojCBuffer->Bind();
 
-	m_device->GetContext()->DrawIndexed( object->mesh->iB.GetCount(), 0u, 0u );
+	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
 }
 
 GraphicsDevice* Renderer::GetGraphicsDevice() const noexcept

@@ -25,20 +25,27 @@ private:
 	// Members
 	std::unique_ptr<Window> m_window;
 	std::unique_ptr<Renderer> m_renderer;
+	std::unique_ptr<Scene> m_scene;
 	Timer m_timer;
 	Input& m_input;
 
 	// Objects
-	std::unique_ptr<Object> m_cube;
-	std::unique_ptr<Camera> m_camera;
-	std::unique_ptr<Scene> m_scene;
+	Camera* m_activeCamera;
+	Object* m_activeObject;
 
+	// Geometry
 	std::shared_ptr<Mesh> m_blockMesh;
-	std::shared_ptr<Material> m_blockMaterial;
+	std::shared_ptr<Mesh> m_sphereMesh;
+
+	// Stuff
+	std::shared_ptr<Material> m_material;
+	std::vector<ShaderFilename> m_availableShaders;
 
 	// States
 	float m_deltaTime = 0.0f;
 	bool m_isRunning = true;
+	bool m_isMenuActive = true;
+
 	std::optional<int> m_exitCode = {};
 
 };

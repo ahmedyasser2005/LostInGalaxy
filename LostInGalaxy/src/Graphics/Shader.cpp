@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Shader.hpp"
 
-Shader::Shader( GraphicsDevice* graphicsDevice, const wchar_t* vShaderFilename, const wchar_t* pShaderFilename ) :
+Shader::Shader( GraphicsDevice* graphicsDevice, std::wstring_view vShaderFilename, std::wstring_view pShaderFilename ) :
 	IBind( graphicsDevice )
 {
 	HRESULT hr = S_OK;
 
-	hr = D3DReadFileToBlob( vShaderFilename, &m_vShaderBlob );
+	hr = D3DReadFileToBlob( vShaderFilename.data(), &m_vShaderBlob );
 	assert( !FAILED( hr ) );
-	hr = D3DReadFileToBlob( pShaderFilename, &m_pShaderBlob );
+	hr = D3DReadFileToBlob( pShaderFilename.data(), &m_pShaderBlob );
 	assert( !FAILED( hr ) );
 
 	constexpr D3D11_INPUT_ELEMENT_DESC inputElementDescs[] = {

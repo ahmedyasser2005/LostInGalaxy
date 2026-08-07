@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] GraphicsDevice* GetGraphicsDevice() const noexcept;
 
 private:
-	void Draw( class Object* object ) noexcept;
+	void Draw( class Object& object ) noexcept;
 
 	std::unique_ptr<GraphicsDevice> m_device;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
