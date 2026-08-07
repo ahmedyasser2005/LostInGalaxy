@@ -92,7 +92,7 @@
     <ClInclude Include="src\Scene\Transform.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="FlatShadingPS.hlsl">
+    <FxCompile Include="src\Shaders\FlatShadingPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
@@ -112,7 +112,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="FlatShadingVS.hlsl">
+    <FxCompile Include="src\Shaders\FlatShadingVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
