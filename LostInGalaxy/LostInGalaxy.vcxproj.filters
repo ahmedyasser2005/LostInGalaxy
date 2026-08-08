@@ -236,30 +236,40 @@
     <ClInclude Include="ext\imgui\backends\imgui_impl_win32.h">
       <Filter>Other Files\ImGui Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Scene\Light.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Shaders\TexturePS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\TextureVS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\ColorPS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\ColorVS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\FlatShadingVS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="src\Shaders\FlatShadingPS.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="assets\textures\StoneBricksSplitface001\StoneBricksSplitface001_COL_1K.jpg">
+    <Image Include="assets\Textures\StoneBricksSplitface001\StoneBricksSplitface001_COL_1K.jpg">
       <Filter>Resource Files\Textures\StoneBricksSplitface001</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="assets\Shaders\PhongPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\LightingVS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\BlinnPhongPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\LightAmbientPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\LightDiffusePS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\NoLightPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\LightBlinnPhongSpecularPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\LightPhongSpecularPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\MercuryRiverPS.hlsl" />
   </ItemGroup>
 </Project>

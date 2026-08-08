@@ -2,6 +2,7 @@
 
 #include "Scene/Object.hpp"
 #include "Scene/Camera.hpp"
+#include "Scene/Light.hpp"
 
 class Scene {
 public:
@@ -13,6 +14,15 @@ public:
 	[[nodiscard]] std::optional<uint32_t> GetActiveObjectIndex() const noexcept;
 	[[nodiscard]] Object* GetActiveObject() noexcept;
 	[[nodiscard]] Object* GetObjectAt( uint32_t index ) noexcept;
+
+	// Object
+	uint32_t AddLight( LightSource& light ) noexcept;
+	uint32_t ToggleLight() noexcept;
+	bool SetActiveLightIndex( uint32_t index ) noexcept;
+	[[nodiscard]] std::vector<LightSource>& GetLights() noexcept;
+	[[nodiscard]] std::optional<uint32_t> GetActiveLightIndex() const noexcept;
+	[[nodiscard]] LightSource* GetActiveLight() noexcept;
+	[[nodiscard]] LightSource* GetLightAt( uint32_t index ) noexcept;
 
 	// Camera
 	uint8_t AddCamera( Camera& camera ) noexcept;
@@ -27,6 +37,10 @@ private:
 	// Object
 	std::vector<Object> m_objects;
 	uint32_t m_activeObjectIndex = 0;
+
+	// LightSource
+	std::vector<LightSource> m_lights;
+	uint32_t m_activeLightIndex = 0;
 
 	// Camera
 	std::vector<Camera> m_cameras;

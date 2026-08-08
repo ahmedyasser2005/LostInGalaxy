@@ -51,10 +51,61 @@ Object* Scene::GetObjectAt( uint32_t index ) noexcept
 	return &m_objects[index];
 }
 
+uint32_t Scene::AddLight( LightSource& light ) noexcept
+{
+	m_lights.emplace_back( std::move( light ) );
+	return static_cast<uint32_t>( m_lights.size() - 1 );
+}
+
+uint32_t Scene::ToggleLight() noexcept
+{
+	m_activeLightIndex = (m_activeLightIndex + 1) % (uint32_t)m_lights.size();
+	return m_activeLightIndex;
+}
+
+bool Scene::SetActiveLightIndex( uint32_t index ) noexcept
+{
+	if( index < 0 || index >= m_lights.size() )
+		return false;
+
+	m_activeLightIndex = index;
+	return true;
+}
+
+std::vector<LightSource>& Scene::GetLights() noexcept
+{
+	return m_lights;
+}
+
+std::optional<uint32_t> Scene::GetActiveLightIndex() const noexcept
+{
+	if( m_lights.empty() )
+		return std::nullopt;
+
+	return m_activeLightIndex;
+}
+
+LightSource* Scene::GetActiveLight() noexcept
+{
+	if( m_lights.empty() )
+		return nullptr;
+
+	return &m_lights[m_activeLightIndex];
+}
+
+LightSource* Scene::GetLightAt( uint32_t index ) noexcept
+{
+	if( index < 0 || index >= m_lights.size() )
+		return nullptr;
+
+	return &m_lights[index];
+}
+
+
 uint8_t Scene::AddCamera( Camera& camera ) noexcept
 {
 	m_cameras.emplace_back( std::move( camera ) );
-	return static_cast<uint8_t>(m_cameras.size() - 1);
+	return static_cast<uint8_t>( m_cameras.size() - 1 );
 }
 
 uint8_t Scene::ToggleCamera() noexcept

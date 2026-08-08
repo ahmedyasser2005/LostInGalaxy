@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "Application.hpp"
 
-static constexpr const wchar_t* g_texFilepath = L"assets\\textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.jpg";
-static constexpr const wchar_t* g_ddsFilepath = L"assets\\textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.dds";
+static constexpr const wchar_t* g_texFilepath = L"assets\\Textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.jpg";
+static constexpr const wchar_t* g_ddsFilepath = L"assets\\Textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.dds";
 
 // Temporary AI Generated Helper Functions //
 static void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
 					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices );
-static std::vector<ShaderFilename> LoadShaders( const std::filesystem::path& shaderDir = "shaders" );
+static std::vector<ShaderFilename> LoadShaders( const std::filesystem::path& shaderDir = "Shaders" );
 /////////////////////////////////////////////
 
 Application::Application( const wchar_t* title, uint32_t width, uint32_t height ) :
@@ -17,7 +17,8 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_input( m_window->GetInput() ),
 	m_availableShaders( LoadShaders() ),
 	m_activeCamera( nullptr ),
-	m_activeObject( nullptr )
+	m_activeObject( nullptr ),
+	m_activeLight( nullptr )
 {
 	HRESULT hr = S_OK; // CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 
@@ -115,7 +116,7 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_sphereMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), sphereVertices, sphereIndices );
 
 	m_material = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.back().vsPath, m_availableShaders.back().psPath ),
+		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.front().vsPath, m_availableShaders.front().psPath ),
 		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
 		Sampler( m_renderer->GetGraphicsDevice(), 0u )
 	);
@@ -124,6 +125,14 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	Camera camera;
 	Object cube = { m_blockMesh, m_material };
 	Object sphere = { m_sphereMesh, m_material };
+	LightSource directionalLight = {
+		.props = {
+			.tint = { 1.0f, 1.0f ,1.0f, 1.0f },
+			.intensity = 1.0f,
+			.shininess = 30u,
+		},
+		.position = { 1.0f, 1.0f, 1.0f, 1.0f },
+	};
 
 	cube.transform.XYZ( 1.0f, 0.0f, 0.0f );
 	sphere.transform.XYZ( -1.0f, 0.0f, 0.0f );
@@ -132,6 +141,7 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_scene->AddObject( cube );
 	m_scene->AddObject( sphere );
 	m_scene->AddCamera( camera );
+	m_scene->AddLight( directionalLight );
 }
 
 Application::~Application() noexcept
@@ -192,10 +202,11 @@ void Application::Update() noexcept
 
 	m_activeCamera = m_scene->GetActiveCamera();
 	m_activeObject = m_scene->GetActiveObject();
+	m_activeLight = m_scene->GetActiveLight();
 
+	// Camera Controls
 	if( m_activeCamera )
 	{
-		// Camera Controls
 		m_activeCamera->Pitch( static_cast<float>(m_input.GetMouseDeltaY()), m_deltaTime );
 		m_activeCamera->Yaw( static_cast<float>(m_input.GetMouseDeltaX()), m_deltaTime );
 
@@ -250,29 +261,71 @@ void Application::Update() noexcept
 		}
 	}
 
+	// Object Controls
 	if( m_activeObject )
 	{
-		// Object Controls
-		if( m_input.IsKeyPressed( 'I' ) )
+		if( m_rotateMode )
 		{
-			m_activeObject->transform.Pitch( m_activeObject->transform.Pitch() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+			if( m_input.IsKeyPressed( 'I' ) )
+			{
+				m_activeObject->transform.Pitch( m_activeObject->transform.Pitch() + (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+			}
+			if( m_input.IsKeyPressed( 'K' ) )
+			{
+				m_activeObject->transform.Pitch( m_activeObject->transform.Pitch() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
+			}
+			if( m_input.IsKeyPressed( 'J' ) )
+			{
+				m_activeObject->transform.Yaw( m_activeObject->transform.Yaw() + (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
+			}
+			if( m_input.IsKeyPressed( 'L' ) )
+			{
+				m_activeObject->transform.Yaw( m_activeObject->transform.Yaw() - (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
+			}
+			if( m_input.IsKeyPressed( 'U' ) )
+			{
+				m_activeObject->transform.Roll( m_activeObject->transform.Roll() + (5.0f * m_deltaTime) ); // Rotate Around Z axis (Roll)
+			}
+			if( m_input.IsKeyPressed( 'O' ) )
+			{
+				m_activeObject->transform.Roll( m_activeObject->transform.Roll() - (5.0f * m_deltaTime) ); // Rotate Around Z axis (Roll)
+			}
 		}
-		if( m_input.IsKeyPressed( 'K' ) )
+		else
 		{
-			m_activeObject->transform.Pitch( m_activeObject->transform.Pitch() - (5.0f * m_deltaTime) ); // Rotate Around X axis (Pitch)
-		}
-		if( m_input.IsKeyPressed( 'J' ) )
-		{
-			m_activeObject->transform.Yaw( m_activeObject->transform.Yaw() + (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
-		}
-		if( m_input.IsKeyPressed( 'L' ) )
-		{
-			m_activeObject->transform.Yaw( m_activeObject->transform.Yaw() - (5.0f * m_deltaTime) ); // Rotate Around Y axis (Yaw)
+			if( m_input.IsKeyPressed( 'I' ) )
+			{
+				m_activeObject->transform.Z( m_activeObject->transform.Z() + (5.0f * m_deltaTime) ); // Move Forward
+			}
+			if( m_input.IsKeyPressed( 'K' ) )
+			{
+				m_activeObject->transform.Z( m_activeObject->transform.Z() - (5.0f * m_deltaTime) ); // Move Backward
+			}
+			if( m_input.IsKeyPressed( 'J' ) )
+			{
+				m_activeObject->transform.X( m_activeObject->transform.X() + (5.0f * m_deltaTime) ); // Move Right
+			}
+			if( m_input.IsKeyPressed( 'L' ) )
+			{
+				m_activeObject->transform.X( m_activeObject->transform.X() - (5.0f * m_deltaTime) ); // Move Left
+			}
+			if( m_input.IsKeyPressed( 'U' ) )
+			{
+				m_activeObject->transform.Y( m_activeObject->transform.Y() + (5.0f * m_deltaTime) ); // Move Up
+			}
+			if( m_input.IsKeyPressed( 'O' ) )
+			{
+				m_activeObject->transform.Y( m_activeObject->transform.Y() - (5.0f * m_deltaTime) ); // Move Down
+			}
 		}
 
 		if( m_input.IsKeyTriggered( 'V' ) )
 		{
 			m_scene->ToggleObject();
+		}
+		if( m_input.IsKeyTriggered( 'B' ) )
+		{
+			m_rotateMode = !m_rotateMode;
 		}
 	}
 }
@@ -383,14 +436,14 @@ void Application::Render() noexcept
 				currentShaderIdx = 0;
 			}
 
-			if( ImGui::BeginListBox( "Select Shader", ImVec2( -FLT_MIN, 4 * ImGui::GetTextLineHeightWithSpacing() ) ) )
+			if( ImGui::BeginListBox( "Select Shader", ImVec2( -FLT_MIN, 6 * ImGui::GetTextLineHeightWithSpacing() ) ) )
 			{
 				for( int n = 0; n < static_cast<int>( m_availableShaders.size() ); n++ )
 				{
 					const auto& item = m_availableShaders[n];
 
-					// Conversion from std::wstring to std::string
-					std::string vsName = []( const std::wstring& wstr ) -> std::string
+					// Helper to convert std::wstring to std::string
+					auto WideToString = []( const std::wstring& wstr ) -> std::string
 					{
 						if( wstr.empty() ) return std::string();
 
@@ -399,13 +452,19 @@ void Application::Render() noexcept
 						WideCharToMultiByte( CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.size()), strTo.data(), sizeNeeded, nullptr, nullptr );
 
 						return strTo;
-					}(item.vsPath);
+					};
 
-					// Strip "VS.cso" suffix for clean label
-					size_t vsPos = vsName.find( "VS.cso" );
-					std::string displayName = (vsPos != std::string::npos)
-						? vsName.substr( 0, vsPos ) + " Shader"
-						: vsName;
+					std::string psPathStr = WideToString( item.psPath );
+
+					// Extract filename from full path (e.g., "C:/.../BlinnPhongPS.cso" -> "BlinnPhongPS.cso")
+					size_t lastSlash = psPathStr.find_last_of( "/\\" );
+					std::string filename = (lastSlash != std::string::npos) ? psPathStr.substr( lastSlash + 1 ) : psPathStr;
+
+					// Strip "PS.cso" suffix for clean UI display name (e.g., "BlinnPhongPS.cso" -> "BlinnPhong")
+					size_t psPos = filename.rfind( "PS.cso" );
+					std::string displayName = (psPos != std::string::npos)
+						? filename.substr( 0, psPos )
+						: filename;
 
 					const bool isSelected = (currentShaderIdx == n);
 
@@ -427,6 +486,46 @@ void Application::Render() noexcept
 
 		ImGui::End();
 	}
+
+	// LightSource Control Menu
+	if( m_activeLight )
+	{
+		float xyz[3] = { m_activeLight->position.x, m_activeLight->position.y, m_activeLight->position.z };
+		float rgb[3] = { m_activeLight->props.tint.x, m_activeLight->props.tint.y, m_activeLight->props.tint.z };
+
+		ImGui::Begin( "LightSource" );
+
+		if( m_scene && m_scene->GetActiveLightIndex().has_value() )
+		{
+			ImGui::Text( "Selected LightSource: %zu", m_scene->GetActiveLightIndex().value() );
+		}
+		else
+		{
+			ImGui::TextUnformatted( "Selected LightSource: None" );
+		}
+
+		if( ImGui::Button( "Switch Lights" ) )
+		{
+			m_scene->ToggleLight();
+		}
+
+		if( ImGui::SliderFloat3( "Position", xyz, -25.0f, 25.0f ) )
+		{
+			m_activeLight->position = { xyz[0], xyz[1], xyz[2], 1.0f };
+		}
+
+		if( ImGui::ColorEdit3( "Tint", rgb ) )
+		{
+			m_activeLight->props.tint.x = rgb[0];
+			m_activeLight->props.tint.y = rgb[1];
+			m_activeLight->props.tint.z = rgb[2];
+		}
+		ImGui::SliderFloat( "Intensity", &m_activeLight->props.intensity, 0.001f, 15.0f, "%.4f" );
+		ImGui::SliderFloat( "Shininess", &m_activeLight->props.shininess, 0.0f, 1000.0f );
+
+		ImGui::End();
+	}
+
 }
 
 
@@ -521,56 +620,82 @@ static std::vector<ShaderFilename> LoadShaders( const std::filesystem::path& sha
 	std::vector<ShaderFilename> shaders;
 	std::error_code ec;
 
-	// 1. Verify directory exists
 	if( !std::filesystem::exists( shaderDir, ec ) || !std::filesystem::is_directory( shaderDir, ec ) )
 	{
-		return shaders; // Return empty if directory missing
+		return shaders;
 	}
 
-	// Maps base shader name (e.g., L"Color") -> { VS Path, PS Path }
-	std::unordered_map<std::wstring, std::pair<std::wstring, std::wstring>> shaderPairs;
+	std::unordered_map<std::wstring, std::wstring> vsMap; // BaseName -> VS Full Path
+	std::unordered_map<std::wstring, std::wstring> psMap; // BaseName -> PS Full Path
 
-	// 2. Iterate through files in the directory
+	// 1. Collect all VS and PS files
 	for( const auto& entry : std::filesystem::directory_iterator( shaderDir, ec ) )
 	{
-		if( !entry.is_regular_file() )
+		if( !entry.is_regular_file( ec ) )
 			continue;
 
 		const std::filesystem::path& path = entry.path();
 
-		// Check for .cso extension
 		if( path.extension() == L".cso" )
 		{
-			std::wstring filename = path.filename().wstring();
 			std::wstring stem = path.stem().wstring();
 
-			// Ensure the stem is long enough to have 'VS' or 'PS' (at least 3 chars)
 			if( stem.size() >= 3 )
 			{
 				std::wstring suffix = stem.substr( stem.size() - 2 );
 				std::wstring baseName = stem.substr( 0, stem.size() - 2 );
+				std::wstring fullPath = (shaderDir / path.filename()).wstring();
 
 				if( suffix == L"VS" )
 				{
-					shaderPairs[baseName].first = std::format( L"{}/{}", shaderDir.c_str(), filename );
+					vsMap[baseName] = fullPath;
 				}
 				else if( suffix == L"PS" )
 				{
-					shaderPairs[baseName].second = std::format( L"{}/{}", shaderDir.c_str(), filename );
+					psMap[baseName] = fullPath;
 				}
 			}
 		}
 	}
 
-	// 3. Assemble complete pairs into the result list
-	for( const auto& [baseName, paths] : shaderPairs )
-	{
-		const auto& [vs, ps] = paths;
+	// 2. Resolve default/fallback VS
+	std::wstring fallbackVS;
 
-		// Only include if both Vertex and Pixel shader variants were found
-		if( !vs.empty() && !ps.empty() )
+	// Priority 1: Check for "Lighting" (from LightingVS.cso)
+	if( auto it = vsMap.find( L"Lighting" ); it != vsMap.end() )
+	{
+		fallbackVS = it->second;
+	}
+	// Priority 2: Check for "Common" (from CommonVS.cso)
+	else if( auto it = vsMap.find( L"Common" ); it != vsMap.end() )
+	{
+		fallbackVS = it->second;
+	}
+	// Priority 3: If only ONE vertex shader exists in the directory, use it as fallback for all PS
+	else if( vsMap.size() == 1 )
+	{
+		fallbackVS = vsMap.begin()->second;
+	}
+
+	// 3. Pair every Pixel Shader with its matching or fallback Vertex Shader
+	for( const auto& [baseName, psPath] : psMap )
+	{
+		std::wstring targetVS;
+
+		// Check for direct 1:1 match first (e.g., PosColorVS for PosColorPS)
+		if( auto it = vsMap.find( baseName ); it != vsMap.end() )
 		{
-			shaders.push_back( ShaderFilename{ vs, ps } );
+			targetVS = it->second;
+		}
+		// Fallback to shared VS if no dedicated VS exists
+		else if( !fallbackVS.empty() )
+		{
+			targetVS = fallbackVS;
+		}
+
+		if( !targetVS.empty() )
+		{
+			shaders.push_back( ShaderFilename{ targetVS, psPath } );
 		}
 	}
 

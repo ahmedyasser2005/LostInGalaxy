@@ -4,11 +4,14 @@
 #include "Scene/Scene.hpp"
 #include "Scene/Camera.hpp"
 #include "Scene/Object.hpp"
+#include "Scene/Light.hpp"
 
 Renderer::Renderer( Window* window ) :
 	m_device( std::make_unique<GraphicsDevice>( window->GetHandle(), window->GetWidth(), window->GetHeight() ) ),
 	m_worldCBuffer( nullptr ),
-	m_viewprojCBuffer( nullptr )
+	m_viewprojCBuffer( nullptr ),
+	m_lightWorldPosCBuffer( nullptr ),
+	m_lightPropsCBuffer( nullptr )
 {
 	HRESULT hr = S_OK;
 
@@ -53,6 +56,8 @@ Renderer::Renderer( Window* window ) :
 
 	m_worldCBuffer = std::make_unique<ConstantBuffer<DirectX::XMMATRIX>>( m_device.get(), 0u );
 	m_viewprojCBuffer = std::make_unique<ConstantBuffer<ViewProjCB>>( m_device.get(), 1u );
+	m_lightWorldPosCBuffer = std::make_unique<ConstantBuffer<DirectX::XMFLOAT4>>( m_device.get(), 2u );
+	m_lightPropsCBuffer = std::make_unique<ConstantBuffer<LightProps>>( m_device.get(), 3u );
 
 	const D3D11_VIEWPORT vp = {
 		.Width = static_cast<FLOAT>(window->GetWidth()),
@@ -69,8 +74,9 @@ void Renderer::Render( Scene* scene ) noexcept
 		.view = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewMatrix() ),
 		.proj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetProjectionMatrix() ),
 	};
-
 	m_viewprojCBuffer->Update( viewProj );
+	m_lightWorldPosCBuffer->Update( scene->GetActiveLight()->position );
+	m_lightPropsCBuffer->Update( scene->GetActiveLight()->props );
 
 	for( auto& object : scene->GetObjects() )
 	{
@@ -103,6 +109,9 @@ void Renderer::Draw( Object& object ) noexcept
 	object.material->sampler.Bind();
 	m_worldCBuffer->Bind();
 	m_viewprojCBuffer->Bind();
+	m_lightWorldPosCBuffer->Bind();
+	m_lightPropsCBuffer->BindPS();
+
 
 	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
 }

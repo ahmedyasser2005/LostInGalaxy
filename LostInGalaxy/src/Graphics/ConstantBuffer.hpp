@@ -40,6 +40,10 @@ public:
 	{
 		m_device->GetContext()->VSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
 	}
+	void BindPS() const noexcept // TODO: Make a better architecture rather than having a special bind method
+	{
+		m_device->GetContext()->PSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
+	}
 
 	uint16_t GetSlot() const noexcept
 	{

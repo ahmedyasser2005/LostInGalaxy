@@ -32,6 +32,7 @@ private:
 	// Objects
 	Camera* m_activeCamera;
 	Object* m_activeObject;
+	LightSource* m_activeLight;
 
 	// Geometry
 	std::shared_ptr<Mesh> m_blockMesh;
@@ -45,6 +46,7 @@ private:
 	float m_deltaTime = 0.0f;
 	bool m_isRunning = true;
 	bool m_isMenuActive = true;
+	bool m_rotateMode = true;
 
 	std::optional<int> m_exitCode = {};
 

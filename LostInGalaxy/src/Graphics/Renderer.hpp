@@ -31,7 +31,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
-	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>> m_worldCBuffer;
-	std::unique_ptr<ConstantBuffer<ViewProjCB>> m_viewprojCBuffer;
+
+	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>>	m_worldCBuffer;
+	std::unique_ptr<ConstantBuffer<ViewProjCB>>			m_viewprojCBuffer;
+	std::unique_ptr<ConstantBuffer<DirectX::XMFLOAT4>>	m_lightWorldPosCBuffer;
+	std::unique_ptr<ConstantBuffer<struct LightProps>>	m_lightPropsCBuffer;
 
 };
