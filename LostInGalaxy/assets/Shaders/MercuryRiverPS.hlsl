@@ -1,13 +1,15 @@
 Texture2D tx : register(t0);
 SamplerState ss : register(s0);
 
-cbuffer lightProperties : register(b3)
+cbuffer lightData : register(b3)
 {
     float3 lightTint;
-    float padding1;
     float lightIntensity;
-    float lightShininess;
-    float2 padding2;
+};
+cbuffer materialData : register(b4)
+{
+    float3 materialColor;
+    float materialShininess;
 };
 
 struct PSIn
@@ -172,7 +174,7 @@ float4 main(PSIn psin) : SV_TARGET
     col *= 300000.0f * h * h + 0.4f;
 
     // 7. Modulate with lightProperties tint from your cbuffer b3
-    col *= lightTint * lightIntensity;
+    col *= lightTint * lightIntensity * materialColor;
 
     // 8. Tonemap & Gamma Correction
     col = aces_approx(col);

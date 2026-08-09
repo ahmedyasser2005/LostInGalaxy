@@ -9,9 +9,10 @@
 Renderer::Renderer( Window* window ) :
 	m_device( std::make_unique<GraphicsDevice>( window->GetHandle(), window->GetWidth(), window->GetHeight() ) ),
 	m_worldCBuffer( nullptr ),
-	m_viewprojCBuffer( nullptr ),
+	m_ViewProjCBuffer( nullptr ),
 	m_lightWorldPosCBuffer( nullptr ),
-	m_lightPropsCBuffer( nullptr )
+	m_lightCBuffer( nullptr ),
+	m_materialCBuffer( nullptr )
 {
 	HRESULT hr = S_OK;
 
@@ -54,10 +55,11 @@ Renderer::Renderer( Window* window ) :
 	hr = m_device->GetDevice()->CreateDepthStencilState( &depthStencilDesc, &m_depthStencilState );
 	assert( !FAILED( hr ) );
 
-	m_worldCBuffer = std::make_unique<ConstantBuffer<DirectX::XMMATRIX>>( m_device.get(), 0u );
-	m_viewprojCBuffer = std::make_unique<ConstantBuffer<ViewProjCB>>( m_device.get(), 1u );
-	m_lightWorldPosCBuffer = std::make_unique<ConstantBuffer<DirectX::XMFLOAT4>>( m_device.get(), 2u );
-	m_lightPropsCBuffer = std::make_unique<ConstantBuffer<LightProps>>( m_device.get(), 3u );
+	m_worldCBuffer = std::make_unique<			ConstantBuffer<DirectX::XMMATRIX>	>( m_device.get(), 0u );
+	m_ViewProjCBuffer = std::make_unique<		ConstantBuffer<ViewProjCB>			>( m_device.get(), 1u );
+	m_lightWorldPosCBuffer = std::make_unique<	ConstantBuffer<DirectX::XMFLOAT4>	>( m_device.get(), 2u );
+	m_lightCBuffer = std::make_unique<			ConstantBuffer<LightCB>				>( m_device.get(), 3u );
+	m_materialCBuffer = std::make_unique<		ConstantBuffer<MaterialCB>			>( m_device.get(), 4u );
 
 	const D3D11_VIEWPORT vp = {
 		.Width = static_cast<FLOAT>(window->GetWidth()),
@@ -74,9 +76,14 @@ void Renderer::Render( Scene* scene ) noexcept
 		.view = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewMatrix() ),
 		.proj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetProjectionMatrix() ),
 	};
-	m_viewprojCBuffer->Update( viewProj );
+	LightCB light = {
+		.lightTint = scene->GetActiveLight()->tint,
+		.lightIntensity = scene->GetActiveLight()->intensity,
+	};
+
+	m_ViewProjCBuffer->Update( viewProj );
 	m_lightWorldPosCBuffer->Update( scene->GetActiveLight()->position );
-	m_lightPropsCBuffer->Update( scene->GetActiveLight()->props );
+	m_lightCBuffer->Update( light );
 
 	for( auto& object : scene->GetObjects() )
 	{
@@ -100,7 +107,12 @@ void Renderer::EndFrame() noexcept
 void Renderer::Draw( Object& object ) noexcept
 {
 	DirectX::XMMATRIX world = DirectX::XMMatrixTranspose( object.GetWorldMatrix() );
+	MaterialCB material = {
+		.matColor = object.material->color,
+		.matShininess = object.material->shininess,
+	};
 	m_worldCBuffer->Update( world );
+	m_materialCBuffer->Update( material );
 
 	object.mesh->vB.Bind();
 	object.mesh->iB.Bind();
@@ -108,10 +120,10 @@ void Renderer::Draw( Object& object ) noexcept
 	object.material->texture.Bind();
 	object.material->sampler.Bind();
 	m_worldCBuffer->Bind();
-	m_viewprojCBuffer->Bind();
+	m_ViewProjCBuffer->Bind();
 	m_lightWorldPosCBuffer->Bind();
-	m_lightPropsCBuffer->BindPS();
-
+	m_lightCBuffer->BindPS();
+	m_materialCBuffer->BindPS();
 
 	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
 }

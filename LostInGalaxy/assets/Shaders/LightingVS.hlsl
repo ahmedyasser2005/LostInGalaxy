@@ -9,8 +9,7 @@ cbuffer viewProjectionTransformationMatrix : register(b1)
 };
 cbuffer lightWorldPosition : register(b2)
 {
-    float3 lightWorldPosition;
-    float padding;
+    float4 lightWorldPosition;
 };
 
 struct VSIn
@@ -39,9 +38,9 @@ VSOut main(VSIn vsin)
     vsout.position = mul(float4(vsin.position, 1.0f), worldViewProjMat);
     vsout.uv = vsin.uv;
 
-    vsout.vertexViewPosition    = mul(float4(vsin.position,         1.0f), worldViewMat).xyz;
-    vsout.lightViewPosition     = mul(float4(lightWorldPosition,    1.0f), viewMat).xyz;
-    vsout.normalViewDirection   = mul(float4(vsin.normal,           0.0f), worldViewMat).xyz;
+    vsout.vertexViewPosition = mul(float4(vsin.position, 1.0f), worldViewMat).xyz;
+    vsout.lightViewPosition = mul(lightWorldPosition, viewMat).xyz;
+    vsout.normalViewDirection = mul(float4(vsin.normal, 0.0f), worldViewMat).xyz;
     
     return vsout;
 }

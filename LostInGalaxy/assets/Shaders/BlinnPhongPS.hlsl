@@ -1,13 +1,15 @@
 Texture2D tx : register(t0);
 SamplerState ss : register(s0);
 
-cbuffer lightProperties : register(b3)
+cbuffer lightData : register(b3)
 {
     float3 lightTint;
-    float padding1;
     float lightIntensity;
-    float lightShininess;
-    float2 padding2;
+};
+cbuffer materialData : register(b4)
+{
+    float3 materialColor;
+    float materialShininess;
 };
 
 struct PSIn
@@ -28,9 +30,9 @@ float4 main(PSIn psin) : SV_TARGET
     float3 V = normalize(-psin.vertexViewPosition);
     float3 H = normalize(L + V);
 
-    float3 specular = lightTint * lightIntensity * pow(max(dot(H, N), 0.0f), lightShininess);
-    float3 diffuse = lightTint * lightIntensity * max(dot(L, N), 0.0f);
-    float3 ambient = lightTint * 0.2;
+    float3 specular = lightTint * materialColor * lightIntensity * pow(max(dot(H, N), 0.0f), materialShininess);
+    float3 diffuse = lightTint * materialColor * lightIntensity * max(dot(L, N), 0.0f);
+    float3 ambient = lightTint * materialColor * 0.2;
     
     float3 finalColor = color.rgb * (specular + ambient + diffuse);
     

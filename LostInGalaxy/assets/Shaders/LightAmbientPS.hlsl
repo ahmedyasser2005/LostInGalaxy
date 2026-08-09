@@ -1,13 +1,15 @@
 Texture2D tx : register(t0);
 SamplerState ss : register(s0);
 
-cbuffer lightProperties : register(b3)
+cbuffer lightData : register(b3)
 {
     float3 lightTint;
-    float padding1;
     float lightIntensity;
-    float lightShininess;
-    float2 padding2;
+};
+cbuffer materialData : register(b4)
+{
+    float3 materialColor;
+    float materialShininess;
 };
 
 struct PSIn
@@ -23,7 +25,7 @@ float4 main(PSIn psin) : SV_TARGET
 {
     float4 color = tx.Sample(ss, psin.uv);
     
-    float3 ambient = lightTint * 0.2;
+    float3 ambient = lightTint * materialColor * 0.2;
     
     float3 finalColor = color.rgb * ambient;
     

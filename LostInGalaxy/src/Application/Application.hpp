@@ -39,7 +39,9 @@ private:
 	std::shared_ptr<Mesh> m_sphereMesh;
 
 	// Stuff
-	std::shared_ptr<Material> m_material;
+	std::shared_ptr<Material> m_blockMaterial;
+	std::shared_ptr<Material> m_sphereMaterial;
+
 	std::vector<ShaderFilename> m_availableShaders;
 
 	// States

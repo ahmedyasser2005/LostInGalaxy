@@ -9,6 +9,16 @@ struct ViewProjCB {
 	DirectX::XMMATRIX proj;
 };
 
+struct alignas(16) LightCB {
+	DirectX::XMFLOAT3 lightTint;
+	float lightIntensity;
+};
+
+struct alignas(16) MaterialCB {
+	DirectX::XMFLOAT3 matColor;
+	float matShininess;
+};
+
 class Renderer final {
 public:
 	Renderer( class Window* window );
@@ -33,8 +43,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 
 	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>>	m_worldCBuffer;
-	std::unique_ptr<ConstantBuffer<ViewProjCB>>			m_viewprojCBuffer;
+	std::unique_ptr<ConstantBuffer<ViewProjCB>>			m_ViewProjCBuffer;
 	std::unique_ptr<ConstantBuffer<DirectX::XMFLOAT4>>	m_lightWorldPosCBuffer;
-	std::unique_ptr<ConstantBuffer<struct LightProps>>	m_lightPropsCBuffer;
+	std::unique_ptr<ConstantBuffer<LightCB>>			m_lightCBuffer;
+	std::unique_ptr<ConstantBuffer<MaterialCB>>			m_materialCBuffer;
 
 };

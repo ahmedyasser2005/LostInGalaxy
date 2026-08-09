@@ -270,6 +270,8 @@
     <FxCompile Include="assets\Shaders\LightPhongSpecularPS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="assets\Shaders\MercuryRiverPS.hlsl" />
+    <FxCompile Include="assets\Shaders\MercuryRiverPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -2,13 +2,8 @@
 
 #include "pch.h"
 
-struct alignas(16) LightProps {
-	DirectX::XMFLOAT4 tint;
-	float intensity;
-	float shininess;
-};
-
-struct LightSource {
-	LightProps props;
+struct alignas(16) LightSource {
 	DirectX::XMFLOAT4 position;
+	DirectX::XMFLOAT3 tint;
+	float intensity;
 };

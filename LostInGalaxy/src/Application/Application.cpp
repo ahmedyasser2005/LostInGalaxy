@@ -115,23 +115,29 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_blockMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), cubeVertices, cubeIndices );
 	m_sphereMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), sphereVertices, sphereIndices );
 
-	m_material = std::make_shared<Material>(
+	m_blockMaterial = std::make_shared<Material>(
 		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.front().vsPath, m_availableShaders.front().psPath ),
 		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
-		Sampler( m_renderer->GetGraphicsDevice(), 0u )
+		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
+		DirectX::XMFLOAT3( 0.0f, 0.7f, 1.0f ),
+		100.f
+	);
+	m_sphereMaterial = std::make_shared<Material>(
+		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.front().vsPath, m_availableShaders.front().psPath ),
+		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
+		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
+		DirectX::XMFLOAT3( 1.0f, 0.7f, 0.0f ),
+		100.f
 	);
 
 	// Setup Scene
 	Camera camera;
-	Object cube = { m_blockMesh, m_material };
-	Object sphere = { m_sphereMesh, m_material };
+	Object cube = { m_blockMesh, m_blockMaterial };
+	Object sphere = { m_sphereMesh, m_sphereMaterial };
 	LightSource directionalLight = {
-		.props = {
-			.tint = { 1.0f, 1.0f ,1.0f, 1.0f },
-			.intensity = 1.0f,
-			.shininess = 30u,
-		},
 		.position = { 1.0f, 1.0f, 1.0f, 1.0f },
+		.tint = { 1.0f ,1.0f, 1.0f },
+		.intensity = 1.0f,
 	};
 
 	cube.transform.XYZ( 1.0f, 0.0f, 0.0f );
@@ -415,10 +421,23 @@ void Application::Render() noexcept
 			m_scene->ToggleObject();
 		}
 
+		float rgb[3] = { m_activeObject->material->color.x,
+						m_activeObject->material->color.y,
+						m_activeObject->material->color.z };
+		if( ImGui::ColorEdit3( "Material Color", rgb ) )
+		{
+			m_activeObject->material->color.x = rgb[0];
+			m_activeObject->material->color.y = rgb[1];
+			m_activeObject->material->color.z = rgb[2];
+		}
+
+		ImGui::SliderFloat( "Shininess", &m_activeObject->material->shininess, 0.0f, 1000.0f );
+
+
 		ImGui::End();
 	}
 
-	// Shader Control Menu (AI Generated)
+	// Shader Control Menu (AI Generated, Modified a bit by Me)
 	{
 		ImGui::Begin( "Shader" );
 
@@ -472,7 +491,7 @@ void Application::Render() noexcept
 					{
 						currentShaderIdx = n;
 						const auto& selectedShader = m_availableShaders[currentShaderIdx];
-						m_material->shader = Shader( m_renderer->GetGraphicsDevice(), selectedShader.vsPath, selectedShader.psPath );
+						m_activeObject->material->shader = Shader( m_renderer->GetGraphicsDevice(), selectedShader.vsPath, selectedShader.psPath );
 					}
 
 					if( isSelected )
@@ -491,7 +510,7 @@ void Application::Render() noexcept
 	if( m_activeLight )
 	{
 		float xyz[3] = { m_activeLight->position.x, m_activeLight->position.y, m_activeLight->position.z };
-		float rgb[3] = { m_activeLight->props.tint.x, m_activeLight->props.tint.y, m_activeLight->props.tint.z };
+		float rgb[3] = { m_activeLight->tint.x, m_activeLight->tint.y, m_activeLight->tint.z };
 
 		ImGui::Begin( "LightSource" );
 
@@ -516,12 +535,9 @@ void Application::Render() noexcept
 
 		if( ImGui::ColorEdit3( "Tint", rgb ) )
 		{
-			m_activeLight->props.tint.x = rgb[0];
-			m_activeLight->props.tint.y = rgb[1];
-			m_activeLight->props.tint.z = rgb[2];
+			m_activeLight->tint = { rgb[0], rgb[1], rgb[2] };
 		}
-		ImGui::SliderFloat( "Intensity", &m_activeLight->props.intensity, 0.001f, 15.0f, "%.4f" );
-		ImGui::SliderFloat( "Shininess", &m_activeLight->props.shininess, 0.0f, 1000.0f );
+		ImGui::SliderFloat( "Intensity", &m_activeLight->intensity, 0.001f, 15.0f, "%.4f" );
 
 		ImGui::End();
 	}

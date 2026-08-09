@@ -1,13 +1,16 @@
 Texture2D tx : register(t0);
 SamplerState ss : register(s0);
 
-cbuffer lightProperties : register(b3)
+cbuffer lightData : register(b3)
 {
     float3 lightTint;
-    float padding1;
     float lightIntensity;
-    float lightShininess;
-    float2 padding2;
+};
+
+cbuffer materialData : register(b4)
+{
+    float3 materialColor;
+    float materialShininess;
 };
 
 struct PSIn
