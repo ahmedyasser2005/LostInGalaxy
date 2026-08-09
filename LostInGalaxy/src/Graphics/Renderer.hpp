@@ -60,7 +60,8 @@ private:
 
 	void BindPerFrame( const PerFrameData& data );
 	void BindPerObject( const PerObjectData& data );
-	void BindPerLight( const PerLightData& data );
+	//void BindPerLight( const PerLightData& data );
+	void BindPerLight( const std::array<LightPosCB, 4>& lpCBs, const std::array<LightCB, 4>& lCBs );
 	void BindPerMaterial( const PerMaterialData& data );
 
 	void Draw( class Object& object ) noexcept;
@@ -69,11 +70,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
-
 	std::unique_ptr<ConstantBuffer<CameraCB>>	 m_cameraCB;
 	std::unique_ptr<ConstantBuffer<ObjectMatCB>> m_objectMatCB;
-	std::unique_ptr<ConstantBuffer<LightPosCB>>	 m_lightPosCB;
-	std::unique_ptr<ConstantBuffer<LightCB>>	 m_lightCB;
+	std::unique_ptr<ConstantBuffer<std::array<LightPosCB, 4>>> m_lightPosCB;
+	std::unique_ptr<ConstantBuffer<std::array<LightCB, 4>>>	 m_lightCB;
 	std::unique_ptr<ConstantBuffer<MaterialCB>>	 m_materialCB;
 
 	struct Material* m_currentMaterial;

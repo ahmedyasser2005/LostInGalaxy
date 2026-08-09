@@ -9,7 +9,7 @@ cbuffer worldTransformationMatrix : register(b1)
 };
 cbuffer lightWorldPosition : register(b2)
 {
-    float4 lightWorldPosition;
+    float4 lightWorldPosition[4];
 };
 
 struct VSIn
@@ -23,7 +23,7 @@ struct VSOut
 {
     float4 position : SV_POSITION;
     float3 vertexViewPosition : vPOSITION;
-    float3 lightViewPosition : lPOSITION;
+    float3 lightViewPosition[4] : lPOSITION;
     float3 normalViewDirection : NORMAL;
     float2 uv : TEXCOORD;
 };
@@ -39,7 +39,12 @@ VSOut main(VSIn vsin)
     vsout.uv = vsin.uv;
 
     vsout.vertexViewPosition = mul(float4(vsin.position, 1.0f), worldViewMat).xyz;
-    vsout.lightViewPosition = mul(lightWorldPosition, viewMat).xyz;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        vsout.lightViewPosition[i] = mul(lightWorldPosition[i], viewMat).xyz;
+    }
+
     vsout.normalViewDirection = mul(float4(vsin.normal, 0.0f), worldViewMat).xyz;
     
     return vsout;

@@ -6,10 +6,10 @@ Sampler::Sampler( GraphicsDevice* graphicsDevice, uint16_t slot ) :
 	m_slot( slot )
 {
 	constexpr D3D11_SAMPLER_DESC samplerDesc = {
-		.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT,
-		.AddressU = D3D11_TEXTURE_ADDRESS_BORDER,
-		.AddressV = D3D11_TEXTURE_ADDRESS_BORDER,
-		.AddressW = D3D11_TEXTURE_ADDRESS_BORDER,
+		.Filter = D3D11_FILTER_ANISOTROPIC,
+		.AddressU = D3D11_TEXTURE_ADDRESS_WRAP,
+		.AddressV = D3D11_TEXTURE_ADDRESS_WRAP,
+		.AddressW = D3D11_TEXTURE_ADDRESS_WRAP,
 		.MaxAnisotropy = 16u,
 		.BorderColor = { 0.5f, 0.0f, 0.0f, 1.0f },
 	};

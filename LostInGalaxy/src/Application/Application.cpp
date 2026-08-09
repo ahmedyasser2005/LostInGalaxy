@@ -140,10 +140,25 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	// Setup Scene
 	Camera camera;
 	Object cube = { m_blockMesh, m_blockMaterial };
-	//Object sphere = { m_sphereMesh, m_sphereMaterial };
-	Object sphere = { m_sphereMesh, m_blockMaterial };
-	LightSource directionalLight = {
+	Object sphere = { m_sphereMesh, m_sphereMaterial };
+
+	LightSource light1 = {
 		.position = { 1.0f, 1.0f, 1.0f, 1.0f },
+		.tint = { 1.0f ,1.0f, 1.0f },
+		.intensity = 1.0f,
+	};
+	LightSource light2 = {
+		.position = { 1.0f, -1.0f, -1.0f, 1.0f },
+		.tint = { 1.0f ,1.0f, 1.0f },
+		.intensity = 1.0f,
+	};
+	LightSource light3 = {
+		.position = { -1.0f, -1.0f, 1.0f, 1.0f },
+		.tint = { 1.0f ,1.0f, 1.0f },
+		.intensity = 1.0f,
+	};
+	LightSource light4 = {
+		.position = { -1.0f, -1.0f, -1.0f, 1.0f },
 		.tint = { 1.0f ,1.0f, 1.0f },
 		.intensity = 1.0f,
 	};
@@ -154,8 +169,13 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 
 	m_scene->AddObject( cube );
 	m_scene->AddObject( sphere );
+
 	m_scene->AddCamera( camera );
-	m_scene->AddLight( directionalLight );
+
+	m_scene->AddLight( light1 );
+	m_scene->AddLight( light2 );
+	m_scene->AddLight( light3 );
+	m_scene->AddLight( light4 );
 }
 
 Application::~Application() noexcept
@@ -204,6 +224,10 @@ void Application::Exit() noexcept
 
 void Application::Update() noexcept
 {
+	m_activeCamera = m_scene->GetActiveCamera();
+	m_activeObject = m_scene->GetActiveObject();
+	m_activeLight = m_scene->GetActiveLight();
+
 	if( m_input.IsKeyTriggered( VK_ESCAPE ) )
 	{
 		m_isMenuActive = !m_isMenuActive;
@@ -213,10 +237,6 @@ void Application::Update() noexcept
 	{
 		return;
 	}
-
-	m_activeCamera = m_scene->GetActiveCamera();
-	m_activeObject = m_scene->GetActiveObject();
-	m_activeLight = m_scene->GetActiveLight();
 
 	// Camera Controls
 	if( m_activeCamera )

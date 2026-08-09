@@ -58,8 +58,8 @@ Renderer::Renderer( Window* window ) :
 
 	m_cameraCB = std::make_unique<ConstantBuffer<CameraCB>>( m_device.get(), 0u );
 	m_objectMatCB = std::make_unique<ConstantBuffer<ObjectMatCB>>( m_device.get(), 1u );
-	m_lightPosCB = std::make_unique<ConstantBuffer<LightPosCB>>( m_device.get(), 2u );
-	m_lightCB = std::make_unique<ConstantBuffer<LightCB>>( m_device.get(), 3u );
+	m_lightPosCB = std::make_unique<ConstantBuffer<std::array<LightPosCB, 4>>>( m_device.get(), 2u );
+	m_lightCB = std::make_unique<ConstantBuffer<std::array<LightCB, 4>>>( m_device.get(), 3u );
 	m_materialCB = std::make_unique<ConstantBuffer<MaterialCB>>( m_device.get(), 4u );
 
 	const D3D11_VIEWPORT vp = {
@@ -108,19 +108,19 @@ void Renderer::Render( Scene* scene ) noexcept
 	};
 	BindPerFrame( pfd );
 
-	for( auto& light : scene->GetLights() )
+	std::array<LightPosCB, 4> lpCBs = {};
+	std::array<LightCB, 4 > lCBs = {};
+	for( uint8_t i = 0; i < 4; ++i )
 	{
-		PerLightData pld = {
-			.lightPosCB = {
-				.worldPosition = light.position,
-			},
-			.lightCB = {
-				.tint = light.tint,
-				.intensity = light.intensity,
-			},
+		lpCBs[i] = {
+			.worldPosition = scene->GetLights()[i].position,
 		};
-		BindPerLight( pld );
+		lCBs[i] = {
+			.tint = scene->GetLights()[i].tint,
+			.intensity = scene->GetLights()[i].intensity,
+		};
 	}
+	BindPerLight( lpCBs, lCBs );
 
 	for( auto& object : scene->GetObjects() )
 	{
@@ -133,7 +133,7 @@ void Renderer::Render( Scene* scene ) noexcept
 		BindPerObject( pod );
 
 		// TODO: Add dynamic update to materials mid running.
-		if( !m_currentMaterial || m_currentMaterial != object.material.get() ) // if no mat or mat is different
+		//if( !m_currentMaterial || m_currentMaterial != object.material.get() ) // if no mat or mat is different
 		{
 			m_currentMaterial = object.material.get();
 
@@ -170,10 +170,11 @@ void Renderer::BindPerObject( const PerObjectData& data )
 	m_objectMatCB->Bind();
 }
 
-void Renderer::BindPerLight( const PerLightData& data )
+//void Renderer::BindPerLight( const PerLightData& data )
+void Renderer::BindPerLight( const std::array<LightPosCB, 4>& lpCBs, const std::array<LightCB, 4>& lCBs )
 {
-	m_lightPosCB->Update( data.lightPosCB );
-	m_lightCB->Update( data.lightCB );
+	m_lightPosCB->Update( lpCBs );
+	m_lightCB->Update( lCBs );
 
 	m_lightPosCB->Bind();
 	m_lightCB->BindPS();
