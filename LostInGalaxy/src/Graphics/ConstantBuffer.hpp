@@ -36,6 +36,7 @@ public:
 		std::memcpy( mappedSubRes.pData, &data, sizeof( T ) );
 		m_device->GetContext()->Unmap( m_buffer.Get(), 0u );
 	}
+
 	void Bind() const noexcept override
 	{
 		m_device->GetContext()->VSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
@@ -53,5 +54,4 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 	const uint16_t m_slot;
-
 };

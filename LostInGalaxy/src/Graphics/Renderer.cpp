@@ -8,11 +8,12 @@
 
 Renderer::Renderer( Window* window ) :
 	m_device( std::make_unique<GraphicsDevice>( window->GetHandle(), window->GetWidth(), window->GetHeight() ) ),
-	m_worldCBuffer( nullptr ),
-	m_ViewProjCBuffer( nullptr ),
-	m_lightWorldPosCBuffer( nullptr ),
-	m_lightCBuffer( nullptr ),
-	m_materialCBuffer( nullptr )
+	m_cameraCB( nullptr ),
+	m_objectMatCB( nullptr ),
+	m_lightPosCB( nullptr ),
+	m_lightCB( nullptr ),
+	m_materialCB( nullptr ),
+	m_currentMaterial( nullptr )
 {
 	HRESULT hr = S_OK;
 
@@ -55,11 +56,11 @@ Renderer::Renderer( Window* window ) :
 	hr = m_device->GetDevice()->CreateDepthStencilState( &depthStencilDesc, &m_depthStencilState );
 	assert( !FAILED( hr ) );
 
-	m_worldCBuffer = std::make_unique<			ConstantBuffer<DirectX::XMMATRIX>	>( m_device.get(), 0u );
-	m_ViewProjCBuffer = std::make_unique<		ConstantBuffer<ViewProjCB>			>( m_device.get(), 1u );
-	m_lightWorldPosCBuffer = std::make_unique<	ConstantBuffer<DirectX::XMFLOAT4>	>( m_device.get(), 2u );
-	m_lightCBuffer = std::make_unique<			ConstantBuffer<LightCB>				>( m_device.get(), 3u );
-	m_materialCBuffer = std::make_unique<		ConstantBuffer<MaterialCB>			>( m_device.get(), 4u );
+	m_cameraCB = std::make_unique<ConstantBuffer<CameraCB>>( m_device.get(), 0u );
+	m_objectMatCB = std::make_unique<ConstantBuffer<ObjectMatCB>>( m_device.get(), 1u );
+	m_lightPosCB = std::make_unique<ConstantBuffer<LightPosCB>>( m_device.get(), 2u );
+	m_lightCB = std::make_unique<ConstantBuffer<LightCB>>( m_device.get(), 3u );
+	m_materialCB = std::make_unique<ConstantBuffer<MaterialCB>>( m_device.get(), 4u );
 
 	const D3D11_VIEWPORT vp = {
 		.Width = static_cast<FLOAT>(window->GetWidth()),
@@ -70,31 +71,16 @@ Renderer::Renderer( Window* window ) :
 	m_device->GetContext()->RSSetViewports( 1u, &vp );
 }
 
-void Renderer::Render( Scene* scene ) noexcept
+GraphicsDevice* Renderer::GetGraphicsDevice() const noexcept
 {
-	ViewProjCB viewProj = {
-		.view = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewMatrix() ),
-		.proj = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetProjectionMatrix() ),
-	};
-	LightCB light = {
-		.lightTint = scene->GetActiveLight()->tint,
-		.lightIntensity = scene->GetActiveLight()->intensity,
-	};
-
-	m_ViewProjCBuffer->Update( viewProj );
-	m_lightWorldPosCBuffer->Update( scene->GetActiveLight()->position );
-	m_lightCBuffer->Update( light );
-
-	for( auto& object : scene->GetObjects() )
-	{
-		Draw( object );
-	}
+	return m_device.get();
 }
 
 void Renderer::BeginFrame() noexcept
 {
 	constexpr float clearColor[4] = { 0.07f, 0.02f, 0.12f, 1.0f };
 	m_device->GetContext()->OMSetRenderTargets( 1u, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get() );
+	m_device->GetContext()->OMSetDepthStencilState( m_depthStencilState.Get(), 1u );
 	m_device->GetContext()->ClearRenderTargetView( m_renderTargetView.Get(), clearColor );
 	m_device->GetContext()->ClearDepthStencilView( m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u );
 }
@@ -104,31 +90,106 @@ void Renderer::EndFrame() noexcept
 	m_device->GetSwapChain()->Present( 1u, 0u );
 }
 
-void Renderer::Draw( Object& object ) noexcept
+static uint32_t renderCounter = 0u;
+static uint32_t updateCounter = 0u;
+
+void Renderer::Render( Scene* scene ) noexcept
 {
-	DirectX::XMMATRIX world = DirectX::XMMatrixTranspose( object.GetWorldMatrix() );
-	MaterialCB material = {
-		.matColor = object.material->color,
-		.matShininess = object.material->shininess,
+	// DEBUGING //
+	//++renderCounter;
+	//std::println( "Rendering Updates: {}", renderCounter );
+	//////////////
+
+	PerFrameData pfd = {
+		.cameraCB = {
+			.viewMatrix = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetViewMatrix() ),
+			.projMatrix = DirectX::XMMatrixTranspose( scene->GetActiveCamera()->GetProjectionMatrix() ),
+		},
 	};
-	m_worldCBuffer->Update( world );
-	m_materialCBuffer->Update( material );
+	BindPerFrame( pfd );
 
-	object.mesh->vB.Bind();
-	object.mesh->iB.Bind();
-	object.material->shader.Bind();
-	object.material->texture.Bind();
-	object.material->sampler.Bind();
-	m_worldCBuffer->Bind();
-	m_ViewProjCBuffer->Bind();
-	m_lightWorldPosCBuffer->Bind();
-	m_lightCBuffer->BindPS();
-	m_materialCBuffer->BindPS();
+	for( auto& light : scene->GetLights() )
+	{
+		PerLightData pld = {
+			.lightPosCB = {
+				.worldPosition = light.position,
+			},
+			.lightCB = {
+				.tint = light.tint,
+				.intensity = light.intensity,
+			},
+		};
+		BindPerLight( pld );
+	}
 
-	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
+	for( auto& object : scene->GetObjects() )
+	{
+		PerObjectData pod = {
+			.objectRef = object,
+			.objectPosCB = {
+				.worldMatrix = DirectX::XMMatrixTranspose( object.GetWorldMatrix() ),
+			},
+		};
+		BindPerObject( pod );
+
+		// TODO: Add dynamic update to materials mid running.
+		if( !m_currentMaterial || m_currentMaterial != object.material.get() ) // if no mat or mat is different
+		{
+			m_currentMaterial = object.material.get();
+
+			PerMaterialData pmd = {
+				.materialCB = {
+					.color = object.material->color,
+					.shininess = object.material->shininess,
+				},
+			};
+			BindPerMaterial( pmd );
+
+			// DEBUGGING //
+			//++updateCounter;
+			//std::println( "Materials Updates: {}\n\n", updateCounter );
+			///////////////
+		}
+
+		Draw( object );
+	}
 }
 
-GraphicsDevice* Renderer::GetGraphicsDevice() const noexcept
+void Renderer::BindPerFrame( const PerFrameData& data )
 {
-	return m_device.get();
+	m_cameraCB->Update( data.cameraCB );
+	m_cameraCB->Bind();
+}
+
+void Renderer::BindPerObject( const PerObjectData& data )
+{
+	data.objectRef.mesh->vB.Bind();
+	data.objectRef.mesh->iB.Bind();
+
+	m_objectMatCB->Update( data.objectPosCB );
+	m_objectMatCB->Bind();
+}
+
+void Renderer::BindPerLight( const PerLightData& data )
+{
+	m_lightPosCB->Update( data.lightPosCB );
+	m_lightCB->Update( data.lightCB );
+
+	m_lightPosCB->Bind();
+	m_lightCB->BindPS();
+}
+
+void Renderer::BindPerMaterial( const PerMaterialData& data )
+{
+	m_currentMaterial->shader.Bind();
+	m_currentMaterial->texture->Bind();
+	m_currentMaterial->sampler.Bind();
+
+	m_materialCB->Update( data.materialCB );
+	m_materialCB->BindPS();
+}
+
+void Renderer::Draw( Object& object ) noexcept
+{
+	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
 }

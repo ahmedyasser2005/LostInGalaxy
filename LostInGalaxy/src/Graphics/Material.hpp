@@ -6,7 +6,7 @@
 
 struct Material {
 	Shader shader;
-	Texture texture;
+	std::shared_ptr<Texture> texture;
 	Sampler sampler;
 	DirectX::XMFLOAT3 color = {};
 	float shininess = 32.0f;

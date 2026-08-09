@@ -4,6 +4,7 @@
 #include "Platform/Input.hpp"
 #include "Platform/Timer.hpp"
 #include "Graphics/Renderer.hpp"
+#include "Graphics/Texture.hpp"
 #include "Scene/Object.hpp"
 #include "Scene/Scene.hpp"
 
@@ -41,6 +42,7 @@ private:
 	// Stuff
 	std::shared_ptr<Material> m_blockMaterial;
 	std::shared_ptr<Material> m_sphereMaterial;
+	std::shared_ptr<Texture> m_texture;
 
 	std::vector<ShaderFilename> m_availableShaders;
 

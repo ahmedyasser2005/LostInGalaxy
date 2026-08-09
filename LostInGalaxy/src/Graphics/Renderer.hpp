@@ -4,20 +4,41 @@
 #include "Graphics/GraphicsDevice.hpp"
 #include "Graphics/ConstantBuffer.hpp"
 
-struct ViewProjCB {
-	DirectX::XMMATRIX view;
-	DirectX::XMMATRIX proj;
+struct CameraCB {
+	DirectX::XMMATRIX viewMatrix;
+	DirectX::XMMATRIX projMatrix;
 };
-
+struct ObjectMatCB {
+	DirectX::XMMATRIX worldMatrix;
+};
+struct alignas(16) LightPosCB {
+	DirectX::XMFLOAT4 worldPosition;
+};
 struct alignas(16) LightCB {
-	DirectX::XMFLOAT3 lightTint;
-	float lightIntensity;
+	DirectX::XMFLOAT3 tint;
+	float intensity;
+};
+struct alignas(16) MaterialCB {
+	DirectX::XMFLOAT3 color;
+	float shininess;
 };
 
-struct alignas(16) MaterialCB {
-	DirectX::XMFLOAT3 matColor;
-	float matShininess;
+struct PerFrameData {
+	CameraCB cameraCB;
 };
+struct PerObjectData {
+	class Object& objectRef;
+	ObjectMatCB objectPosCB;
+};
+struct PerLightData {
+	LightPosCB lightPosCB;
+	LightCB lightCB;
+};
+struct PerMaterialData {
+	MaterialCB materialCB;
+};
+
+
 
 class Renderer final {
 public:
@@ -28,13 +49,20 @@ public:
 	Renderer( Renderer&& ) = delete;
 	Renderer& operator= ( Renderer&& ) = delete;
 
-	void Render( class Scene* scene ) noexcept;
+	[[nodiscard]] GraphicsDevice* GetGraphicsDevice() const noexcept;
+
 	void BeginFrame() noexcept;
 	void EndFrame() noexcept;
 
-	[[nodiscard]] GraphicsDevice* GetGraphicsDevice() const noexcept;
+	void Render( class Scene* scene ) noexcept;
 
 private:
+
+	void BindPerFrame( const PerFrameData& data );
+	void BindPerObject( const PerObjectData& data );
+	void BindPerLight( const PerLightData& data );
+	void BindPerMaterial( const PerMaterialData& data );
+
 	void Draw( class Object& object ) noexcept;
 
 	std::unique_ptr<GraphicsDevice> m_device;
@@ -42,10 +70,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 
-	std::unique_ptr<ConstantBuffer<DirectX::XMMATRIX>>	m_worldCBuffer;
-	std::unique_ptr<ConstantBuffer<ViewProjCB>>			m_ViewProjCBuffer;
-	std::unique_ptr<ConstantBuffer<DirectX::XMFLOAT4>>	m_lightWorldPosCBuffer;
-	std::unique_ptr<ConstantBuffer<LightCB>>			m_lightCBuffer;
-	std::unique_ptr<ConstantBuffer<MaterialCB>>			m_materialCBuffer;
+	std::unique_ptr<ConstantBuffer<CameraCB>>	 m_cameraCB;
+	std::unique_ptr<ConstantBuffer<ObjectMatCB>> m_objectMatCB;
+	std::unique_ptr<ConstantBuffer<LightPosCB>>	 m_lightPosCB;
+	std::unique_ptr<ConstantBuffer<LightCB>>	 m_lightCB;
+	std::unique_ptr<ConstantBuffer<MaterialCB>>	 m_materialCB;
+
+	struct Material* m_currentMaterial;
 
 };

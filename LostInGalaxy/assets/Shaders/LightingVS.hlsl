@@ -1,11 +1,11 @@
-cbuffer worldTransformationMatrix : register(b0)
-{
-    float4x4 worldMat;
-};
-cbuffer viewProjectionTransformationMatrix : register(b1)
+cbuffer viewProjectionTransformationMatrix : register(b0)
 {
     float4x4 viewMat;
     float4x4 projMat;
+};
+cbuffer worldTransformationMatrix : register(b1)
+{
+    float4x4 worldMat;
 };
 cbuffer lightWorldPosition : register(b2)
 {

@@ -18,7 +18,8 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_availableShaders( LoadShaders() ),
 	m_activeCamera( nullptr ),
 	m_activeObject( nullptr ),
-	m_activeLight( nullptr )
+	m_activeLight( nullptr ),
+	m_texture( nullptr )
 {
 	HRESULT hr = S_OK; // CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 
@@ -37,9 +38,8 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	assert( result );
 	/////////////////
 
-
+	Image img = {};
 	// Load Texture
-	Image img;
 	hr = DirectX::LoadFromWICFile(
 		g_texFilepath,
 		DirectX::WIC_FLAGS_NONE,
@@ -57,6 +57,9 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	std::cout << "Format: " << img.texMetadata.format << '\n';
 	std::cout << "Pixels Size: " << img.scratchImage.GetPixelsSize() << '\n';
 	std::cout << "Image Count: " << img.scratchImage.GetImageCount() << '\n';
+
+	m_texture = std::make_shared<Texture>( m_renderer->GetGraphicsDevice(), std::move( img ), 0u );
+	assert( m_texture );
 
 	// Setup Cube's data (AI Gen vertices, I'm just lazy to define it myself)
 	std::array<Vertex, 24> cubeVertices = {
@@ -116,15 +119,19 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_sphereMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), sphereVertices, sphereIndices );
 
 	m_blockMaterial = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.front().vsPath, m_availableShaders.front().psPath ),
-		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
+		Shader( m_renderer->GetGraphicsDevice(),
+				m_availableShaders.front().vsPath,
+				m_availableShaders.front().psPath ),
+		m_texture,
 		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
 		DirectX::XMFLOAT3( 0.0f, 0.7f, 1.0f ),
 		100.f
 	);
 	m_sphereMaterial = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(), m_availableShaders.front().vsPath, m_availableShaders.front().psPath ),
-		Texture( m_renderer->GetGraphicsDevice(), std::move( img ), 0u ),
+		Shader( m_renderer->GetGraphicsDevice(),
+				m_availableShaders.front().vsPath,
+				m_availableShaders.front().psPath ),
+		m_texture,
 		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
 		DirectX::XMFLOAT3( 1.0f, 0.7f, 0.0f ),
 		100.f
@@ -133,7 +140,8 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	// Setup Scene
 	Camera camera;
 	Object cube = { m_blockMesh, m_blockMaterial };
-	Object sphere = { m_sphereMesh, m_sphereMaterial };
+	//Object sphere = { m_sphereMesh, m_sphereMaterial };
+	Object sphere = { m_sphereMesh, m_blockMaterial };
 	LightSource directionalLight = {
 		.position = { 1.0f, 1.0f, 1.0f, 1.0f },
 		.tint = { 1.0f ,1.0f, 1.0f },
@@ -491,7 +499,14 @@ void Application::Render() noexcept
 					{
 						currentShaderIdx = n;
 						const auto& selectedShader = m_availableShaders[currentShaderIdx];
-						m_activeObject->material->shader = Shader( m_renderer->GetGraphicsDevice(), selectedShader.vsPath, selectedShader.psPath );
+
+						if( m_activeObject )
+						{
+							m_activeObject->material->shader =
+								Shader( m_renderer->GetGraphicsDevice(),
+										selectedShader.vsPath,
+										selectedShader.psPath );
+						}
 					}
 
 					if( isSelected )
