@@ -2,6 +2,9 @@
 A 3D game that I'm working on as a learning project of Computer Graphics.
 
 ---
+## 2026-08-10
+<img src="docs/screenshots/2026-08-10.png" alt="Phase 1.02 Project Showcase" width="720px">
+
 ## 2026-08-08
 <img src="docs/screenshots/2026-08-08.png" alt="Phase 1.02 Project Showcase" width="720px">
 
