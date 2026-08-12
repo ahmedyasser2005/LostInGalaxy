@@ -4,13 +4,18 @@
 
 class IBind {
 public:
-	IBind( GraphicsDevice* graphicsDevice ) : m_device( graphicsDevice )
+	IBind( GraphicsDevice* graphicsDevice ) noexcept(!_DEBUG) :
+		m_device( graphicsDevice )
 	{
 		assert( graphicsDevice );
 	}
+	virtual ~IBind() noexcept(!_DEBUG) = default;
+	IBind( const IBind& ) = delete;
+	IBind& operator=( const IBind& ) = delete;
+	IBind( IBind&& ) noexcept(!_DEBUG) = default;
+	IBind& operator=( IBind&& ) noexcept(!_DEBUG) = default;
 
-	virtual ~IBind() noexcept = default;
-	virtual void Bind() const noexcept = 0;
+	virtual void Bind() const noexcept(!_DEBUG) = 0;
 
 protected:
 	GraphicsDevice* m_device;

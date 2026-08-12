@@ -1,65 +1,46 @@
 #include "pch.h"
 #include "Application.hpp"
 
-static constexpr const wchar_t* g_texFilepath = L"assets\\Textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.jpg";
-static constexpr const wchar_t* g_ddsFilepath = L"assets\\Textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.dds";
+
 
 // Temporary AI Generated Helper Functions //
-static void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
-					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices );
-static std::vector<ShaderFilename> LoadShaders( const std::filesystem::path& shaderDir = "Shaders" );
+static constexpr void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
+					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices ) noexcept;
 /////////////////////////////////////////////
+
+
 
 Application::Application( const wchar_t* title, uint32_t width, uint32_t height ) :
 	m_window( std::make_unique<Window>( title, width, height ) ),
 	m_renderer( std::make_unique<Renderer>( m_window.get() ) ),
+	m_assetManager( std::make_unique<AssetManager>( m_renderer->GetGraphicsDevice() ) ),
 	m_scene( std::make_unique<Scene>() ),
 	m_input( m_window->GetInput() ),
-	m_availableShaders( LoadShaders() ),
 	m_activeCamera( nullptr ),
 	m_activeObject( nullptr ),
-	m_activeLight( nullptr ),
-	m_texture( nullptr )
+	m_activeLight( nullptr )
 {
 	HRESULT hr = S_OK; // CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 
-	// Setup ImGui //
+	/*************************************************
+	* In release mode, asserts are removed			 *
+	* so whatever inside the assert is also removed! *
+	* (e.g,  assert( ImGui_ImplWin32_Init( ... ) );) *
+	* which caused imgui to not initialize			 *
+	* that was a bug I encountered					 *
+	*************************************************/
+
+	/* Setup ImGui */
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	// In release mode, asserts are removed
-	// so whatever inside the assert is also removed! (e.g,  assert( ImGui_ImplWin32_Init( ... ) );)
-	// which caused imgui to not initialize
-	// that was a bug I encountered
-	BOOL result = TRUE;
-	result = ImGui_ImplWin32_Init( reinterpret_cast<void*>(m_window->GetHandle()) );
-	assert( result );
-	result = ImGui_ImplDX11_Init( m_renderer->GetGraphicsDevice()->GetDevice(),
+	bool ir = true;
+	ir = ImGui_ImplWin32_Init( reinterpret_cast<void*>(m_window->GetHandle()) );
+	assert( ir );
+	ir = ImGui_ImplDX11_Init( m_renderer->GetGraphicsDevice()->GetDevice(),
 								  m_renderer->GetGraphicsDevice()->GetContext() );
-	assert( result );
-	/////////////////
+	assert( ir );
 
-	Image img = {};
-	// Load Texture
-	hr = DirectX::LoadFromWICFile(
-		g_texFilepath,
-		DirectX::WIC_FLAGS_NONE,
-		&img.texMetadata,
-		img.scratchImage
-	);
-	assert( !FAILED( hr ) );
 
-	std::cout << "Dimension: " << img.texMetadata.dimension << '\n';
-	std::cout << "Width: " << img.texMetadata.width << '\n';
-	std::cout << "Height: " << img.texMetadata.height << '\n';
-	std::cout << "Array Size: " << img.texMetadata.arraySize << '\n';
-	std::cout << "Depth: " << img.texMetadata.depth << '\n';
-	std::cout << "Mip Levels: " << img.texMetadata.mipLevels << '\n';
-	std::cout << "Format: " << img.texMetadata.format << '\n';
-	std::cout << "Pixels Size: " << img.scratchImage.GetPixelsSize() << '\n';
-	std::cout << "Image Count: " << img.scratchImage.GetImageCount() << '\n';
-
-	m_texture = std::make_shared<Texture>( m_renderer->GetGraphicsDevice(), std::move( img ), 0u );
-	assert( m_texture );
 
 	// Setup Cube's data (AI Gen vertices, I'm just lazy to define it myself)
 	std::array<Vertex, 24> cubeVertices = {
@@ -108,60 +89,58 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 		// Right Face
 		20, 21, 22,		20, 22, 23
 	};
-
 	// Setup Sphere's data (AI Gen vertices, I'm just lazy to define it myself)
 	std::vector<Vertex> sphereVertices;
 	std::vector<uint32_t> sphereIndices;
 	GenerateSphere( 0.5f, 30, 30, sphereVertices, sphereIndices );
 
-	// Setup Mesh & Material
-	m_blockMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), cubeVertices, cubeIndices );
-	m_sphereMesh = std::make_shared<Mesh>( m_renderer->GetGraphicsDevice(), sphereVertices, sphereIndices );
 
-	m_blockMaterial = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(),
-				m_availableShaders.front().vsPath,
-				m_availableShaders.front().psPath ),
-		m_texture,
-		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
-		DirectX::XMFLOAT3( 0.0f, 0.7f, 1.0f ),
-		100.f
+	// Setup Assets
+	bool status = true;
+	m_assetManager->LoadAllShadersFromDirectory( "Shaders" );
+	status = m_assetManager->LoadMesh( "Cube1", cubeVertices, cubeIndices );
+	assert( status );
+	status = m_assetManager->LoadMesh( "Sphere1", sphereVertices, sphereIndices );
+	assert( status );
+	status = m_assetManager->LoadSampler( "MrSampler" );
+	assert( status );
+	status = m_assetManager->LoadTexture(
+		"StoneWallTex",
+		"assets\\Textures\\StoneBricksSplitface001\\StoneBricksSplitface001_COL_1K.jpg"
 	);
-	m_sphereMaterial = std::make_shared<Material>(
-		Shader( m_renderer->GetGraphicsDevice(),
-				m_availableShaders.front().vsPath,
-				m_availableShaders.front().psPath ),
-		m_texture,
-		Sampler( m_renderer->GetGraphicsDevice(), 0u ),
-		DirectX::XMFLOAT3( 1.0f, 0.7f, 0.0f ),
-		100.f
-	);
+	assert( status );
+	status = m_assetManager->LoadMaterial( "GoldMat",
+								  "LightingVS",
+								  "BlinnPhongPS",
+								  "StoneWallTex",
+								  "MrSampler",
+								  { 0.0f, 0.7f, 1.0f },
+								  100.0f );
+	assert( status );
+	status = m_assetManager->LoadMaterial( "LapizMat",
+								  "LightingVS",
+								  "BlinnPhongPS",
+								  "StoneWallTex",
+								  "MrSampler",
+								  { 1.0f, 0.7f, 0.0f },
+								  200.0f );
+	assert( status );
 
 	// Setup Scene
 	Camera camera;
-	Object cube = { m_blockMesh, m_blockMaterial };
-	Object sphere = { m_sphereMesh, m_sphereMaterial };
+	Object cube(
+		m_assetManager->GetAsset<Mesh>( "Cube1" ),
+		m_assetManager->GetAsset<Material>( "GoldMat" )
+	);
+	Object sphere(
+		m_assetManager->GetAsset<Mesh>( "Sphere1" ),
+		m_assetManager->GetAsset<Material>( "LapizMat" )
+	);
 
-	LightSource light1 = {
-		.position = { 1.0f, 1.0f, 1.0f, 1.0f },
-		.tint = { 1.0f ,1.0f, 1.0f },
-		.intensity = 1.0f,
-	};
-	LightSource light2 = {
-		.position = { 1.0f, -1.0f, -1.0f, 1.0f },
-		.tint = { 1.0f ,1.0f, 1.0f },
-		.intensity = 1.0f,
-	};
-	LightSource light3 = {
-		.position = { -1.0f, -1.0f, 1.0f, 1.0f },
-		.tint = { 1.0f ,1.0f, 1.0f },
-		.intensity = 1.0f,
-	};
-	LightSource light4 = {
-		.position = { -1.0f, -1.0f, -1.0f, 1.0f },
-		.tint = { 1.0f ,1.0f, 1.0f },
-		.intensity = 1.0f,
-	};
+	LightSource light1;
+	LightSource light2;
+	LightSource light3;
+	LightSource light4;
 
 	cube.transform.XYZ( 1.0f, 0.0f, 0.0f );
 	sphere.transform.XYZ( -1.0f, 0.0f, 0.0f );
@@ -178,7 +157,7 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	m_scene->AddLight( light4 );
 }
 
-Application::~Application() noexcept
+Application::~Application() noexcept(!_DEBUG)
 {
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -197,32 +176,38 @@ const int Application::Run()
 			break;
 		}
 
-		// Start the Dear ImGui frame //
+		// Start the Dear ImGui frame
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-		////////////////////////////////
+
+
+
 		Update();
 		m_renderer->BeginFrame();
 		Render();
-		// ImGUI Render //
+
+
+
+		// ImGUI Render
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
-		//////////////////
-		m_renderer->EndFrame();
 
+
+
+		m_renderer->EndFrame();
 		m_input.Reset();
 	}
 
 	return m_exitCode.value();
 }
 
-void Application::Exit() noexcept
+void Application::Exit() noexcept(!_DEBUG)
 {
 	m_isRunning = false;
 }
 
-void Application::Update() noexcept
+void Application::Update() noexcept(!_DEBUG)
 {
 	m_activeCamera = m_scene->GetActiveCamera();
 	m_activeObject = m_scene->GetActiveObject();
@@ -364,7 +349,7 @@ void Application::Update() noexcept
 	}
 }
 
-void Application::Render() noexcept
+void Application::Render() noexcept(!_DEBUG)
 {
 	m_renderer->Render( m_scene.get() );
 
@@ -465,67 +450,83 @@ void Application::Render() noexcept
 		ImGui::End();
 	}
 
-	// Shader Control Menu (AI Generated, Modified a bit by Me)
+	// Shaders Control Menu (AI Generated, Modified by Me)
 	{
-		ImGui::Begin( "Shader" );
+		const auto& vshaders = m_assetManager->GetAssets<VertexShader>();
+		const auto& pshaders = m_assetManager->GetAssets<PixelShader>();
 
-		if( m_availableShaders.empty() )
+		ImGui::Begin( "Shaders" );
+
+		if( vshaders.empty() )
 		{
-			ImGui::TextDisabled( "No shaders found in directory." );
+			ImGui::TextDisabled( "No vertex shaders found in directory." );
 		}
 		else
 		{
 			static int currentShaderIdx = 0;
 
 			// Bounds check
-			if( currentShaderIdx >= static_cast<int>(m_availableShaders.size()) )
+			if( currentShaderIdx >= static_cast<int>(vshaders.size()) )
 			{
 				currentShaderIdx = 0;
 			}
 
-			if( ImGui::BeginListBox( "Select Shader", ImVec2( -FLT_MIN, 6 * ImGui::GetTextLineHeightWithSpacing() ) ) )
+			if( ImGui::BeginListBox( "Select Vertex Shader", ImVec2( -FLT_MIN, 6 * ImGui::GetTextLineHeightWithSpacing() ) ) )
 			{
-				for( int n = 0; n < static_cast<int>( m_availableShaders.size() ); n++ )
+				for( int i = 0; i < static_cast<int>( vshaders.size() ); i++ )
 				{
-					const auto& item = m_availableShaders[n];
+					const auto& item = vshaders[i];
+					const bool isSelected = (currentShaderIdx == i);
 
-					// Helper to convert std::wstring to std::string
-					auto WideToString = []( const std::wstring& wstr ) -> std::string
+					if( ImGui::Selectable( vshaders[i].data(), isSelected ) )
 					{
-						if( wstr.empty() ) return std::string();
-
-						int sizeNeeded = WideCharToMultiByte( CP_UTF8, 0, wstr.data(), static_cast<int>( wstr.size() ), nullptr, 0, nullptr, nullptr );
-						std::string strTo( sizeNeeded, 0 );
-						WideCharToMultiByte( CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.size()), strTo.data(), sizeNeeded, nullptr, nullptr );
-
-						return strTo;
-					};
-
-					std::string psPathStr = WideToString( item.psPath );
-
-					// Extract filename from full path (e.g., "C:/.../BlinnPhongPS.cso" -> "BlinnPhongPS.cso")
-					size_t lastSlash = psPathStr.find_last_of( "/\\" );
-					std::string filename = (lastSlash != std::string::npos) ? psPathStr.substr( lastSlash + 1 ) : psPathStr;
-
-					// Strip "PS.cso" suffix for clean UI display name (e.g., "BlinnPhongPS.cso" -> "BlinnPhong")
-					size_t psPos = filename.rfind( "PS.cso" );
-					std::string displayName = (psPos != std::string::npos)
-						? filename.substr( 0, psPos )
-						: filename;
-
-					const bool isSelected = (currentShaderIdx == n);
-
-					if( ImGui::Selectable( displayName.c_str(), isSelected ) )
-					{
-						currentShaderIdx = n;
-						const auto& selectedShader = m_availableShaders[currentShaderIdx];
+						currentShaderIdx = i;
+						const auto& selectedShader = vshaders[currentShaderIdx];
 
 						if( m_activeObject )
 						{
-							m_activeObject->material->shader =
-								Shader( m_renderer->GetGraphicsDevice(),
-										selectedShader.vsPath,
-										selectedShader.psPath );
+							m_activeObject->material->vShader = m_assetManager->GetAsset<VertexShader>( vshaders[i] );
+						}
+					}
+
+					if( isSelected )
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndListBox();
+			}
+		}
+
+		if( pshaders.empty() )
+		{
+			ImGui::TextDisabled( "No pixel shaders found in directory." );
+		}
+		else
+		{
+			static int currentShaderIdx = 0;
+
+			// Bounds check
+			if( currentShaderIdx >= static_cast<int>(pshaders.size()) )
+			{
+				currentShaderIdx = 0;
+			}
+
+			if( ImGui::BeginListBox( "Select Pixel Shader", ImVec2( -FLT_MIN, 6 * ImGui::GetTextLineHeightWithSpacing() ) ) )
+			{
+				for( int i = 0; i < static_cast<int>( pshaders.size() ); i++ )
+				{
+					const auto& item = pshaders[i];
+					const bool isSelected = (currentShaderIdx == i);
+
+					if( ImGui::Selectable( pshaders[i].data(), isSelected ) )
+					{
+						currentShaderIdx = i;
+						const auto& selectedShader = pshaders[currentShaderIdx];
+
+						if( m_activeObject )
+						{
+							m_activeObject->material->pShader = m_assetManager->GetAsset<PixelShader>( pshaders[i] );
 						}
 					}
 
@@ -544,7 +545,7 @@ void Application::Render() noexcept
 	// LightSource Control Menu
 	if( m_activeLight )
 	{
-		float xyz[3] = { m_activeLight->position.x, m_activeLight->position.y, m_activeLight->position.z };
+		float xyz[3] = { m_activeLight->transform.X(), m_activeLight->transform.Y(), m_activeLight->transform.Z() };
 		float rgb[3] = { m_activeLight->tint.x, m_activeLight->tint.y, m_activeLight->tint.z };
 
 		ImGui::Begin( "LightSource" );
@@ -565,7 +566,7 @@ void Application::Render() noexcept
 
 		if( ImGui::SliderFloat3( "Position", xyz, -25.0f, 25.0f ) )
 		{
-			m_activeLight->position = { xyz[0], xyz[1], xyz[2], 1.0f };
+			m_activeLight->transform.XYZ( xyz[0], xyz[1], xyz[2] );
 		}
 
 		if( ImGui::ColorEdit3( "Tint", rgb ) )
@@ -581,8 +582,8 @@ void Application::Render() noexcept
 
 
 // NOTE: This is an AI generated helper function I copy pasted for quick prototyping
-static void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
-					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices )
+static constexpr void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
+					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices ) noexcept
 {
 	vertices.clear();
 	indices.clear();
@@ -664,91 +665,4 @@ static void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCou
 		indices.push_back( baseIndex + i );
 		indices.push_back( baseIndex + i + 1 );
 	}
-}
-// NOTE: This is an AI generated helper function I copy pasted for quick prototyping
-static std::vector<ShaderFilename> LoadShaders( const std::filesystem::path& shaderDir )
-{
-	std::vector<ShaderFilename> shaders;
-	std::error_code ec;
-
-	if( !std::filesystem::exists( shaderDir, ec ) || !std::filesystem::is_directory( shaderDir, ec ) )
-	{
-		return shaders;
-	}
-
-	std::unordered_map<std::wstring, std::wstring> vsMap; // BaseName -> VS Full Path
-	std::unordered_map<std::wstring, std::wstring> psMap; // BaseName -> PS Full Path
-
-	// 1. Collect all VS and PS files
-	for( const auto& entry : std::filesystem::directory_iterator( shaderDir, ec ) )
-	{
-		if( !entry.is_regular_file( ec ) )
-			continue;
-
-		const std::filesystem::path& path = entry.path();
-
-		if( path.extension() == L".cso" )
-		{
-			std::wstring stem = path.stem().wstring();
-
-			if( stem.size() >= 3 )
-			{
-				std::wstring suffix = stem.substr( stem.size() - 2 );
-				std::wstring baseName = stem.substr( 0, stem.size() - 2 );
-				std::wstring fullPath = (shaderDir / path.filename()).wstring();
-
-				if( suffix == L"VS" )
-				{
-					vsMap[baseName] = fullPath;
-				}
-				else if( suffix == L"PS" )
-				{
-					psMap[baseName] = fullPath;
-				}
-			}
-		}
-	}
-
-	// 2. Resolve default/fallback VS
-	std::wstring fallbackVS;
-
-	// Priority 1: Check for "Lighting" (from LightingVS.cso)
-	if( auto it = vsMap.find( L"Lighting" ); it != vsMap.end() )
-	{
-		fallbackVS = it->second;
-	}
-	// Priority 2: Check for "Common" (from CommonVS.cso)
-	else if( auto it = vsMap.find( L"Common" ); it != vsMap.end() )
-	{
-		fallbackVS = it->second;
-	}
-	// Priority 3: If only ONE vertex shader exists in the directory, use it as fallback for all PS
-	else if( vsMap.size() == 1 )
-	{
-		fallbackVS = vsMap.begin()->second;
-	}
-
-	// 3. Pair every Pixel Shader with its matching or fallback Vertex Shader
-	for( const auto& [baseName, psPath] : psMap )
-	{
-		std::wstring targetVS;
-
-		// Check for direct 1:1 match first (e.g., PosColorVS for PosColorPS)
-		if( auto it = vsMap.find( baseName ); it != vsMap.end() )
-		{
-			targetVS = it->second;
-		}
-		// Fallback to shared VS if no dedicated VS exists
-		else if( !fallbackVS.empty() )
-		{
-			targetVS = fallbackVS;
-		}
-
-		if( !targetVS.empty() )
-		{
-			shaders.push_back( ShaderFilename{ targetVS, psPath } );
-		}
-	}
-
-	return shaders;
 }

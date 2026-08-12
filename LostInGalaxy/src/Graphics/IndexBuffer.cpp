@@ -19,12 +19,12 @@ IndexBuffer::IndexBuffer( GraphicsDevice* graphicsDevice, std::span<uint32_t> in
 	assert( !FAILED( hr ) );
 }
 
-void IndexBuffer::Bind() const noexcept
+void IndexBuffer::Bind() const noexcept(!_DEBUG)
 {
 	m_device->GetContext()->IASetIndexBuffer( m_buffer.Get(), DXGI_FORMAT_R32_UINT, 0u );
 }
 
-uint32_t IndexBuffer::GetCount() const noexcept
+uint32_t IndexBuffer::GetCount() const noexcept(!_DEBUG)
 {
 	return m_count;
 }

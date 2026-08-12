@@ -7,31 +7,31 @@
 class Scene {
 public:
 	// Object
-	uint32_t AddObject( Object& object ) noexcept;
-	uint32_t ToggleObject() noexcept;
-	bool SetActiveObjectIndex( uint32_t index ) noexcept;
-	[[nodiscard]] std::vector<Object>& GetObjects() noexcept;
-	[[nodiscard]] std::optional<uint32_t> GetActiveObjectIndex() const noexcept;
-	[[nodiscard]] Object* GetActiveObject() noexcept;
-	[[nodiscard]] Object* GetObjectAt( uint32_t index ) noexcept;
+	uint32_t AddObject( Object& object ) noexcept(!_DEBUG);
+	uint32_t ToggleObject() noexcept(!_DEBUG);
+	bool SetActiveObjectIndex( uint32_t index ) noexcept(!_DEBUG);
+	[[nodiscard]] std::vector<Object>& GetObjects() noexcept(!_DEBUG);
+	[[nodiscard]] std::optional<uint32_t> GetActiveObjectIndex() const noexcept(!_DEBUG);
+	[[nodiscard]] Object* GetActiveObject() noexcept(!_DEBUG);
+	[[nodiscard]] Object* GetObjectAt( uint32_t index ) noexcept(!_DEBUG);
 
 	// Object
-	uint32_t AddLight( LightSource& light ) noexcept;
-	uint32_t ToggleLight() noexcept;
-	bool SetActiveLightIndex( uint32_t index ) noexcept;
-	[[nodiscard]] std::vector<LightSource>& GetLights() noexcept;
-	[[nodiscard]] std::optional<uint32_t> GetActiveLightIndex() const noexcept;
-	[[nodiscard]] LightSource* GetActiveLight() noexcept;
-	[[nodiscard]] LightSource* GetLightAt( uint32_t index ) noexcept;
+	uint32_t AddLight( LightSource& light ) noexcept(!_DEBUG);
+	uint32_t ToggleLight() noexcept(!_DEBUG);
+	bool SetActiveLightIndex( uint32_t index ) noexcept(!_DEBUG);
+	[[nodiscard]] std::vector<LightSource>& GetLights() noexcept(!_DEBUG);
+	[[nodiscard]] std::optional<uint32_t> GetActiveLightIndex() const noexcept(!_DEBUG);
+	[[nodiscard]] LightSource* GetActiveLight() noexcept(!_DEBUG);
+	[[nodiscard]] LightSource* GetLightAt( uint32_t index ) noexcept(!_DEBUG);
 
 	// Camera
-	uint8_t AddCamera( Camera& camera ) noexcept;
-	uint8_t ToggleCamera() noexcept;
-	bool SetActiveCameraIndex( uint8_t index ) noexcept;
-	[[nodiscard]] std::vector<Camera>& GetCameras() noexcept;
-	[[nodiscard]] std::optional<uint8_t> GetActiveCameraIndex() const noexcept;
-	[[nodiscard]] Camera* GetActiveCamera() noexcept;
-	[[nodiscard]] Camera* GetCameraAt( uint8_t index ) noexcept;
+	uint8_t AddCamera( Camera& camera ) noexcept(!_DEBUG);
+	uint8_t ToggleCamera() noexcept(!_DEBUG);
+	bool SetActiveCameraIndex( uint8_t index ) noexcept(!_DEBUG);
+	[[nodiscard]] std::vector<Camera>& GetCameras() noexcept(!_DEBUG);
+	[[nodiscard]] std::optional<uint8_t> GetActiveCameraIndex() const noexcept(!_DEBUG);
+	[[nodiscard]] Camera* GetActiveCamera() noexcept(!_DEBUG);
+	[[nodiscard]] Camera* GetCameraAt( uint8_t index ) noexcept(!_DEBUG);
 
 private:
 	// Object

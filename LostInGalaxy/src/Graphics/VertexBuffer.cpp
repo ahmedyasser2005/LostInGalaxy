@@ -19,7 +19,7 @@ VertexBuffer::VertexBuffer( GraphicsDevice* graphicsDevice, std::span<Vertex> ve
 	assert( !FAILED( hr ) );
 }
 
-void VertexBuffer::Bind() const noexcept
+void VertexBuffer::Bind() const noexcept(!_DEBUG)
 {
 	constexpr UINT stride = static_cast<UINT>(sizeof( Vertex ));
 	constexpr UINT offset = 0u;

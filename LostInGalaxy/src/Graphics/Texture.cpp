@@ -37,12 +37,12 @@ Texture::Texture( GraphicsDevice* graphicsDevice, Image&& image, uint16_t slot )
 	assert( !FAILED( hr ) );
 }
 
-void Texture::Bind() const noexcept
+void Texture::Bind() const noexcept(!_DEBUG)
 {
 	m_device->GetContext()->PSSetShaderResources( m_slot, 1u, m_shaderResourceView.GetAddressOf() );
 }
 
-uint16_t Texture::GetSlot() const noexcept
+uint16_t Texture::GetSlot() const noexcept(!_DEBUG)
 {
 	return m_slot;
 }

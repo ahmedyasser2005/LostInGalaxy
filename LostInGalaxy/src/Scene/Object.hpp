@@ -11,9 +11,9 @@ public:
 		mesh( mesh ), material( material )
 	{}
 
-	[[nodiscard]] DirectX::XMMATRIX GetWorldMatrix() noexcept;
-	Transform transform = {};
+	[[nodiscard]] DirectX::XMMATRIX GetWorldMatrix() noexcept(!_DEBUG);
 
+	Transform transform = {};
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Material> material;
 

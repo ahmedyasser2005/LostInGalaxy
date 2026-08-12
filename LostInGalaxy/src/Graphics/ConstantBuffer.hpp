@@ -23,13 +23,8 @@ public:
 
 		assert( !FAILED( hr ) );
 	}
-	~ConstantBuffer() noexcept = default;
-	ConstantBuffer( const ConstantBuffer& ) = delete;
-	ConstantBuffer& operator=( const ConstantBuffer& ) = delete;
-	ConstantBuffer( ConstantBuffer&& ) noexcept = default;
-	ConstantBuffer& operator=( ConstantBuffer&& ) noexcept = default;
 
-	void Update( T data ) noexcept
+	void Update( T data ) noexcept(!_DEBUG)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedSubRes = {};
 		m_device->GetContext()->Map( m_buffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedSubRes );
@@ -37,16 +32,16 @@ public:
 		m_device->GetContext()->Unmap( m_buffer.Get(), 0u );
 	}
 
-	void Bind() const noexcept override
+	void Bind() const noexcept(!_DEBUG) override
 	{
 		m_device->GetContext()->VSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
 	}
-	void BindPS() const noexcept // TODO: Make a better architecture rather than having a special bind method
+	void BindPS() const noexcept(!_DEBUG) // TODO: Make a better architecture rather than having a special bind method
 	{
 		m_device->GetContext()->PSSetConstantBuffers( m_slot, 1u, m_buffer.GetAddressOf() );
 	}
 
-	uint16_t GetSlot() const noexcept
+	uint16_t GetSlot() const noexcept(!_DEBUG)
 	{
 		return m_slot;
 	}

@@ -11,15 +11,9 @@ struct Image {
 class Texture final : public IBind {
 public:
 	Texture( GraphicsDevice* graphicsDevice, Image&& image, uint16_t slot );
-	~Texture() noexcept = default;
-	Texture( const Texture& ) = delete;
-	Texture& operator=( const Texture& ) = delete;
-	Texture( Texture&& ) noexcept = default;
-	Texture& operator=( Texture&& ) noexcept = default;
 
-	void Bind() const noexcept override;
-
-	uint16_t GetSlot() const noexcept;
+	void Bind() const noexcept(!_DEBUG) override;
+	uint16_t GetSlot() const noexcept(!_DEBUG);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_textureBuffer;

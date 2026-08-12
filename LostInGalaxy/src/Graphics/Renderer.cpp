@@ -13,7 +13,11 @@ Renderer::Renderer( Window* window ) :
 	m_lightPosCB( nullptr ),
 	m_lightCB( nullptr ),
 	m_materialCB( nullptr ),
-	m_currentMaterial( nullptr )
+	m_shadowMappingVS( std::make_shared<VertexShader>( m_device.get(), "Shaders/ShadowMappingVS.cso" ) ),
+	m_shadowMap( std::make_unique<ShadowMap>( m_device.get(), m_shadowMappingVS, 2048u, 2048u ) ),
+	m_currentMaterial( nullptr ),
+	m_width( static_cast<float>(window->GetWidth()) ),
+	m_height( static_cast<float>(window->GetHeight()) )
 {
 	HRESULT hr = S_OK;
 
@@ -61,22 +65,14 @@ Renderer::Renderer( Window* window ) :
 	m_lightPosCB = std::make_unique<ConstantBuffer<std::array<LightPosCB, 4>>>( m_device.get(), 2u );
 	m_lightCB = std::make_unique<ConstantBuffer<std::array<LightCB, 4>>>( m_device.get(), 3u );
 	m_materialCB = std::make_unique<ConstantBuffer<MaterialCB>>( m_device.get(), 4u );
-
-	const D3D11_VIEWPORT vp = {
-		.Width = static_cast<FLOAT>(window->GetWidth()),
-		.Height = static_cast<FLOAT>(window->GetHeight()),
-		.MaxDepth = 1.0f,
-	};
-
-	m_device->GetContext()->RSSetViewports( 1u, &vp );
 }
 
-GraphicsDevice* Renderer::GetGraphicsDevice() const noexcept
+GraphicsDevice* Renderer::GetGraphicsDevice() const noexcept(!_DEBUG)
 {
 	return m_device.get();
 }
 
-void Renderer::BeginFrame() noexcept
+void Renderer::BeginFrame() noexcept(!_DEBUG)
 {
 	constexpr float clearColor[4] = { 0.07f, 0.02f, 0.12f, 1.0f };
 	m_device->GetContext()->OMSetRenderTargets( 1u, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get() );
@@ -85,7 +81,7 @@ void Renderer::BeginFrame() noexcept
 	m_device->GetContext()->ClearDepthStencilView( m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u );
 }
 
-void Renderer::EndFrame() noexcept
+void Renderer::EndFrame() noexcept(!_DEBUG)
 {
 	m_device->GetSwapChain()->Present( 1u, 0u );
 }
@@ -93,12 +89,66 @@ void Renderer::EndFrame() noexcept
 static uint32_t renderCounter = 0u;
 static uint32_t updateCounter = 0u;
 
-void Renderer::Render( Scene* scene ) noexcept
+void Renderer::Render( Scene* scene ) noexcept(!_DEBUG)
+{
+	Pass1( scene );
+
+	constexpr float clearColor[4] = { 0.07f, 0.02f, 0.12f, 1.0f };
+	m_device->GetContext()->OMSetRenderTargets( 1u, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get() );
+	m_device->GetContext()->OMSetDepthStencilState( m_depthStencilState.Get(), 1u );
+	m_device->GetContext()->ClearRenderTargetView( m_renderTargetView.Get(), clearColor );
+	m_device->GetContext()->ClearDepthStencilView( m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u );
+
+	Pass2( scene );
+}
+
+void Renderer::Pass1( Scene* scene ) noexcept(!_DEBUG)
+{
+	const D3D11_VIEWPORT vp = {
+		.Width = 2048u, // hardcoded
+		.Height = 2048u, // hardcoded
+		.MaxDepth = 1.0f,
+	};
+	m_device->GetContext()->RSSetViewports( 1u, &vp );
+
+	PerFrameData pfd = {
+		.cameraCB = {
+			.viewMatrix = DirectX::XMMatrixTranspose( scene->GetActiveLight()->GetViewMatrix() ),
+			.projMatrix = DirectX::XMMatrixTranspose( scene->GetActiveLight()->GetProjectionMatrix() ),
+		},
+	};
+	BindPerFrame( pfd );
+
+	m_shadowMap->Bind();
+	m_device->GetContext()->PSSetShader( nullptr, nullptr, 0u );
+
+	for( auto& object : scene->GetObjects() )
+	{
+		PerObjectData pod = {
+			.objectRef = object,
+			.objectPosCB = {
+				.worldMatrix = DirectX::XMMatrixTranspose( object.GetWorldMatrix() ),
+			},
+		};
+		BindPerObject( pod );
+
+		Draw( object );
+	}
+}
+
+void Renderer::Pass2( Scene* scene ) noexcept(!_DEBUG)
 {
 	// DEBUGING //
 	//++renderCounter;
 	//std::println( "Rendering Updates: {}", renderCounter );
 	//////////////
+
+	const D3D11_VIEWPORT vp = {
+		.Width = m_width,
+		.Height = m_height,
+		.MaxDepth = 1.0f,
+	};
+	m_device->GetContext()->RSSetViewports( 1u, &vp );
 
 	PerFrameData pfd = {
 		.cameraCB = {
@@ -113,7 +163,7 @@ void Renderer::Render( Scene* scene ) noexcept
 	for( uint8_t i = 0; i < 4; ++i )
 	{
 		lpCBs[i] = {
-			.worldPosition = scene->GetLights()[i].position,
+			.worldPosition = scene->GetLights()[i].transform.XYZ(),
 		};
 		lCBs[i] = {
 			.tint = scene->GetLights()[i].tint,
@@ -170,7 +220,6 @@ void Renderer::BindPerObject( const PerObjectData& data )
 	m_objectMatCB->Bind();
 }
 
-//void Renderer::BindPerLight( const PerLightData& data )
 void Renderer::BindPerLight( const std::array<LightPosCB, 4>& lpCBs, const std::array<LightCB, 4>& lCBs )
 {
 	m_lightPosCB->Update( lpCBs );
@@ -182,15 +231,16 @@ void Renderer::BindPerLight( const std::array<LightPosCB, 4>& lpCBs, const std::
 
 void Renderer::BindPerMaterial( const PerMaterialData& data )
 {
-	m_currentMaterial->shader.Bind();
+	m_currentMaterial->vShader->Bind();
+	m_currentMaterial->pShader->Bind();
 	m_currentMaterial->texture->Bind();
-	m_currentMaterial->sampler.Bind();
+	m_currentMaterial->sampler->Bind();
 
 	m_materialCB->Update( data.materialCB );
 	m_materialCB->BindPS();
 }
 
-void Renderer::Draw( Object& object ) noexcept
+void Renderer::Draw( Object& object ) noexcept(!_DEBUG)
 {
 	m_device->GetContext()->DrawIndexed( object.mesh->iB.GetCount(), 0u, 0u );
 }

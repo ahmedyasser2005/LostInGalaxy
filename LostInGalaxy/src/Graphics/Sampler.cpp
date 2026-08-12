@@ -18,12 +18,12 @@ Sampler::Sampler( GraphicsDevice* graphicsDevice, uint16_t slot ) :
 	assert( !FAILED( hr ) );
 }
 
-void Sampler::Bind() const noexcept
+void Sampler::Bind() const noexcept(!_DEBUG)
 {
 	m_device->GetContext()->PSSetSamplers( m_slot, 1u, m_samplerState.GetAddressOf() );
 }
 
-uint16_t Sampler::GetSlot() const noexcept
+uint16_t Sampler::GetSlot() const noexcept(!_DEBUG)
 {
 	return m_slot;
 }

@@ -57,17 +57,17 @@ GraphicsDevice::GraphicsDevice( HWND hwnd, uint32_t width, uint32_t height )
 	assert( !FAILED( hr ) );
 }
 
-ID3D11Device* GraphicsDevice::GetDevice() const noexcept
+ID3D11Device* GraphicsDevice::GetDevice() const noexcept(!_DEBUG)
 {
 	return m_device.Get();
 }
 
-ID3D11DeviceContext* GraphicsDevice::GetContext() const noexcept
+ID3D11DeviceContext* GraphicsDevice::GetContext() const noexcept(!_DEBUG)
 {
 	return m_context.Get();
 }
 
-IDXGISwapChain* GraphicsDevice::GetSwapChain() const noexcept
+IDXGISwapChain* GraphicsDevice::GetSwapChain() const noexcept(!_DEBUG)
 {
 	return m_swapChain.Get();
 }

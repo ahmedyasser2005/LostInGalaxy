@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Object.hpp"
 
-DirectX::XMMATRIX Object::GetWorldMatrix() noexcept
+DirectX::XMMATRIX Object::GetWorldMatrix() noexcept(!_DEBUG)
 {
 	using namespace DirectX;
 

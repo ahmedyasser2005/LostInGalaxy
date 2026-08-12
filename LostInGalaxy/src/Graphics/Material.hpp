@@ -5,9 +5,11 @@
 #include "Graphics/Sampler.hpp"
 
 struct Material {
-	Shader shader;
+	std::shared_ptr<VertexShader> vShader;
+	std::shared_ptr<PixelShader> pShader;
 	std::shared_ptr<Texture> texture;
-	Sampler sampler;
+	std::shared_ptr<Sampler> sampler;
+
 	DirectX::XMFLOAT3 color = {};
 	float shininess = 32.0f;
 };

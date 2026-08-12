@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AssetManager\AssetManager.cpp" />
     <ClCompile Include="ext\imgui\backends\imgui_impl_dx11.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -39,6 +40,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Graphics\ShadowMap.cpp" />
     <ClCompile Include="src\Application\Application.cpp" />
     <ClCompile Include="src\Graphics\Sampler.cpp" />
     <ClCompile Include="src\Graphics\Texture.cpp" />
@@ -51,17 +53,18 @@
     </ClCompile>
     <ClCompile Include="src\Scene\Camera.cpp" />
     <ClCompile Include="src\Graphics\GraphicsDevice.cpp" />
-    <ClCompile Include="src\Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="src\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="src\Scene\Light.cpp" />
     <ClCompile Include="src\Scene\Object.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Scene\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AssetManager\AssetManager.hpp" />
     <ClInclude Include="ext\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="ext\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="ext\imgui\imconfig.h" />
@@ -70,6 +73,7 @@
     <ClInclude Include="ext\imgui\imstb_rectpack.h" />
     <ClInclude Include="ext\imgui\imstb_textedit.h" />
     <ClInclude Include="ext\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Graphics\ShadowMap.hpp" />
     <ClInclude Include="src\Scene\Light.hpp" />
     <ClInclude Include="src\Graphics\IBind.hpp" />
     <ClInclude Include="src\Application\Application.hpp" />
@@ -129,6 +133,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="assets\Shaders\LightingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="assets\Shaders\ShadowPass\ShadowMappingVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

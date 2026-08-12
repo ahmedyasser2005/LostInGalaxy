@@ -54,7 +54,7 @@ Window::~Window()
 	UnregisterClassW( g_className, g_hInstance );
 }
 
-std::optional<int> Window::ProcessMessages() noexcept
+std::optional<int> Window::ProcessMessages() noexcept(!_DEBUG)
 {
 	MSG msg;
 	while( PeekMessageW( &msg, nullptr, 0u, 0u, PM_REMOVE ) )
@@ -71,7 +71,7 @@ std::optional<int> Window::ProcessMessages() noexcept
 	return std::nullopt;
 }
 
-LRESULT Window::HandleMsgSetup( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept
+LRESULT Window::HandleMsgSetup( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept(!_DEBUG)
 {
 	if( msg == WM_NCCREATE )
 	{
@@ -87,7 +87,7 @@ LRESULT Window::HandleMsgSetup( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProcW( hwnd, msg, wParam, lParam );
 }
 
-LRESULT Window::HandleMsgThunk( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept
+LRESULT Window::HandleMsgThunk( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept(!_DEBUG)
 {
 	Window* const pWindow = reinterpret_cast<Window*>(GetWindowLongPtrW( hwnd, GWLP_USERDATA ));
 
@@ -103,7 +103,7 @@ LRESULT Window::HandleMsgThunk( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 
-LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept
+LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept(!_DEBUG)
 {
 	if( ImGui_ImplWin32_WndProcHandler( hwnd, msg, wParam, lParam ) )
 		return true;
