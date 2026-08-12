@@ -68,12 +68,12 @@ void Transform::CleanDirt() noexcept(!_DEBUG)
 
 DirectX::XMVECTOR Transform::XYZ() noexcept(!_DEBUG)
 {
-	return DirectX::XMVECTOR( { m_x, m_y, m_z } );
+	return DirectX::XMVECTOR( { m_x, m_y, m_z, 1.0f } );
 }
 
 DirectX::XMVECTOR Transform::PitchYawRoll() noexcept(!_DEBUG)
 {
-	return DirectX::XMVECTOR( { m_pitch, m_yaw, m_roll } );
+	return DirectX::XMVECTOR( { m_pitch, m_yaw, m_roll, 1.0f } );
 }
 
 float Transform::X() const noexcept(!_DEBUG)
