@@ -1,27 +1,6 @@
 #include "pch.h"
 #include "Camera.hpp"
 
-//DirectX::XMMATRIX Camera::GetViewProjMatrix() noexcept(!_DEBUG)
-//{
-//	using namespace DirectX;
-//
-//	const bool viewUpdated = UpdateView();
-//	const bool projUpdated = UpdateProjection();
-//
-//	if( viewUpdated || projUpdated )
-//	{
-//		XMMATRIX view = XMLoadFloat4x4( &m_viewMatrixStorage );
-//		XMMATRIX proj = XMLoadFloat4x4( &m_projMatrixStorage );
-//
-//		XMMATRIX viewProjMatrix = XMMatrixMultiply( view, proj );
-//		XMStoreFloat4x4( &m_viewProjMatrixStorage, viewProjMatrix );
-//
-//		return viewProjMatrix;
-//	}
-//
-//	return XMLoadFloat4x4( &m_viewProjMatrixStorage );
-//}
-
 DirectX::XMMATRIX Camera::GetViewMatrix() noexcept(!_DEBUG)
 {
 	using namespace DirectX;

@@ -78,7 +78,7 @@
     <ClCompile Include="src\Graphics\GraphicsDevice.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\Renderer.cpp">
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\Camera.cpp">
@@ -86,9 +86,6 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
       <Filter>Other Files\PCH Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\ConstantBuffer.cpp">
-      <Filter>Source Files\Graphics\Buffers</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\IndexBuffer.cpp">
       <Filter>Source Files\Graphics\Buffers</Filter>
@@ -156,6 +153,9 @@
     <ClCompile Include="src\Scene\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AssetManager\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -167,7 +167,7 @@
     <ClInclude Include="src\Graphics\GraphicsDevice.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\Renderer.hpp">
+    <ClInclude Include="src\Graphics\Renderer\Renderer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Object.hpp">
@@ -248,6 +248,9 @@
     <ClInclude Include="src\Graphics\ShadowMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\AssetManager\AssetManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\Textures\StoneBricksSplitface001\StoneBricksSplitface001_COL_1K.jpg">
@@ -282,7 +285,6 @@
     <FxCompile Include="assets\Shaders\MercuryRiverPS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="assets\Shaders\ShadowPass\ShadowVS.hlsl" />
-    <FxCompile Include="assets\Shaders\ShadowPass\ShadowPS.hlsl" />
+    <FxCompile Include="assets\Shaders\ShadowPass\ShadowMappingVS.hlsl" />
   </ItemGroup>
 </Project>

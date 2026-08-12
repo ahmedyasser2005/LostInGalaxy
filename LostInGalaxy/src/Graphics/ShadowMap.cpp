@@ -60,5 +60,9 @@ ID3D11ShaderResourceView* ShadowMap::GetSRV() const noexcept(!_DEBUG)
 
 void ShadowMap::Bind() const noexcept(!_DEBUG)
 {
+	m_device->GetContext()->OMSetRenderTargets( 0u, nullptr, m_depthStencilView.Get() );
+	m_device->GetContext()->ClearDepthStencilView( m_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u );
+
 	m_vShader->Bind();
+	m_device->GetContext()->PSSetShader( nullptr, nullptr, 0u );
 }

@@ -5,7 +5,89 @@
 
 // Temporary AI Generated Helper Functions //
 static constexpr void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
-					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices ) noexcept;
+					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices ) noexcept
+{
+	vertices.clear();
+	indices.clear();
+
+	// 1. Generate Vertices
+	// Top pole
+	vertices.push_back( {
+		DirectX::XMFLOAT3( 0.0f, radius, 0.0f ),
+		DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ),
+		DirectX::XMFLOAT2( 0.5f, 0.0f )
+	} );
+
+	float phiStep = static_cast<float>(3.14159265358979323846) / stackCount;
+	float thetaStep = 2.0f * static_cast<float>(3.14159265358979323846) / sliceCount;
+
+	// Rings from top to bottom (excluding the poles)
+	for( uint32_t i = 1; i < stackCount; ++i )
+	{
+		float phi = i * phiStep;
+
+		for( uint32_t j = 0; j <= sliceCount; ++j )
+		{
+			float theta = j * thetaStep;
+
+			// Unit sphere coordinates (also functions as the normal)
+			float x = sinf( phi ) * cosf( theta );
+			float y = cosf( phi );
+			float z = sinf( phi ) * sinf( theta );
+
+			DirectX::XMFLOAT3 pos( radius * x, radius * y, radius * z );
+			DirectX::XMFLOAT3 norm( x, y, z );
+			DirectX::XMFLOAT2 uv( static_cast<float>(j) / sliceCount, static_cast<float>(i) / stackCount );
+
+			vertices.push_back( { pos, norm, uv } );
+		}
+	}
+
+	// Bottom pole
+	vertices.push_back( {
+		DirectX::XMFLOAT3( 0.0f, -radius, 0.0f ),
+		DirectX::XMFLOAT3( 0.0f, -1.0f, 0.0f ),
+		DirectX::XMFLOAT2( 0.5f, 1.0f )
+	} );
+
+	// 2. Generate Indices
+	// Top cap indices
+	for( uint32_t i = 1; i <= sliceCount; ++i )
+	{
+		indices.push_back( 0 );
+		indices.push_back( i + 1 );
+		indices.push_back( i );
+	}
+
+	// Body quads (as two triangles per cell)
+	uint32_t baseIndex = 1;
+	uint32_t ringVertexCount = sliceCount + 1;
+
+	for( uint32_t i = 0; i < stackCount - 2; ++i )
+	{
+		for( uint32_t j = 0; j < sliceCount; ++j )
+		{
+			indices.push_back( baseIndex + i * ringVertexCount + j );
+			indices.push_back( baseIndex + i * ringVertexCount + j + 1 );
+			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j );
+
+			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j );
+			indices.push_back( baseIndex + i * ringVertexCount + j + 1 );
+			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j + 1 );
+		}
+	}
+
+	// Bottom cap indices
+	uint32_t southPoleIndex = static_cast<uint32_t>(vertices.size()) - 1;
+	baseIndex = southPoleIndex - ringVertexCount;
+
+	for( uint32_t i = 0; i < sliceCount; ++i )
+	{
+		indices.push_back( southPoleIndex );
+		indices.push_back( baseIndex + i );
+		indices.push_back( baseIndex + i + 1 );
+	}
+}
 /////////////////////////////////////////////
 
 
@@ -114,7 +196,7 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 								  "BlinnPhongPS",
 								  "StoneWallTex",
 								  "MrSampler",
-								  { 0.0f, 0.7f, 1.0f },
+								  { 1.0f, 0.7f, 0.0f },
 								  100.0f );
 	assert( status );
 	status = m_assetManager->LoadMaterial( "LapizMat",
@@ -122,8 +204,8 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 								  "BlinnPhongPS",
 								  "StoneWallTex",
 								  "MrSampler",
-								  { 1.0f, 0.7f, 0.0f },
-								  200.0f );
+								  { 0.0f, 0.7f, 1.0f },
+								  32.0f );
 	assert( status );
 
 	// Setup Scene
@@ -145,6 +227,11 @@ Application::Application( const wchar_t* title, uint32_t width, uint32_t height 
 	cube.transform.XYZ( 1.0f, 0.0f, 0.0f );
 	sphere.transform.XYZ( -1.0f, 0.0f, 0.0f );
 	camera.transform.XYZ( 0.0f, 0.0f, -5.0f );
+
+	light1.transform.XYZ( 3.0f, 3.0f, 3.0f );
+	light2.transform.XYZ( 100.0f, 100.0f, 100.0f );
+	light3.transform.XYZ( 100.0f, 100.0f, 100.0f );
+	light4.transform.XYZ( 100.0f, 100.0f, 100.0f );
 
 	m_scene->AddObject( cube );
 	m_scene->AddObject( sphere );
@@ -181,21 +268,17 @@ const int Application::Run()
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-
-
 		Update();
+
 		m_renderer->BeginFrame();
 		Render();
-
-
-
-		// ImGUI Render
+		
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
-
-
 		m_renderer->EndFrame();
+
+
 		m_input.Reset();
 	}
 
@@ -212,6 +295,9 @@ void Application::Update() noexcept(!_DEBUG)
 	m_activeCamera = m_scene->GetActiveCamera();
 	m_activeObject = m_scene->GetActiveObject();
 	m_activeLight = m_scene->GetActiveLight();
+	assert( m_activeCamera );
+	assert( m_activeObject );
+	assert( m_activeLight );
 
 	if( m_input.IsKeyTriggered( VK_ESCAPE ) )
 	{
@@ -578,91 +664,4 @@ void Application::Render() noexcept(!_DEBUG)
 		ImGui::End();
 	}
 
-}
-
-
-// NOTE: This is an AI generated helper function I copy pasted for quick prototyping
-static constexpr void GenerateSphere( float radius, uint32_t sliceCount, uint32_t stackCount,
-					std::vector<Vertex>& vertices, std::vector<uint32_t>& indices ) noexcept
-{
-	vertices.clear();
-	indices.clear();
-
-	// 1. Generate Vertices
-	// Top pole
-	vertices.push_back( {
-		DirectX::XMFLOAT3( 0.0f, radius, 0.0f ),
-		DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ),
-		DirectX::XMFLOAT2( 0.5f, 0.0f )
-	} );
-
-	float phiStep = static_cast<float>(3.14159265358979323846) / stackCount;
-	float thetaStep = 2.0f * static_cast<float>(3.14159265358979323846) / sliceCount;
-
-	// Rings from top to bottom (excluding the poles)
-	for( uint32_t i = 1; i < stackCount; ++i )
-	{
-		float phi = i * phiStep;
-
-		for( uint32_t j = 0; j <= sliceCount; ++j )
-		{
-			float theta = j * thetaStep;
-
-			// Unit sphere coordinates (also functions as the normal)
-			float x = sinf( phi ) * cosf( theta );
-			float y = cosf( phi );
-			float z = sinf( phi ) * sinf( theta );
-
-			DirectX::XMFLOAT3 pos( radius * x, radius * y, radius * z );
-			DirectX::XMFLOAT3 norm( x, y, z );
-			DirectX::XMFLOAT2 uv( static_cast<float>(j) / sliceCount, static_cast<float>(i) / stackCount );
-
-			vertices.push_back( { pos, norm, uv } );
-		}
-	}
-
-	// Bottom pole
-	vertices.push_back( {
-		DirectX::XMFLOAT3( 0.0f, -radius, 0.0f ),
-		DirectX::XMFLOAT3( 0.0f, -1.0f, 0.0f ),
-		DirectX::XMFLOAT2( 0.5f, 1.0f )
-	} );
-
-	// 2. Generate Indices
-	// Top cap indices
-	for( uint32_t i = 1; i <= sliceCount; ++i )
-	{
-		indices.push_back( 0 );
-		indices.push_back( i + 1 );
-		indices.push_back( i );
-	}
-
-	// Body quads (as two triangles per cell)
-	uint32_t baseIndex = 1;
-	uint32_t ringVertexCount = sliceCount + 1;
-
-	for( uint32_t i = 0; i < stackCount - 2; ++i )
-	{
-		for( uint32_t j = 0; j < sliceCount; ++j )
-		{
-			indices.push_back( baseIndex + i * ringVertexCount + j );
-			indices.push_back( baseIndex + i * ringVertexCount + j + 1 );
-			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j );
-
-			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j );
-			indices.push_back( baseIndex + i * ringVertexCount + j + 1 );
-			indices.push_back( baseIndex + (i + 1) * ringVertexCount + j + 1 );
-		}
-	}
-
-	// Bottom cap indices
-	uint32_t southPoleIndex = static_cast<uint32_t>(vertices.size()) - 1;
-	baseIndex = southPoleIndex - ringVertexCount;
-
-	for( uint32_t i = 0; i < sliceCount; ++i )
-	{
-		indices.push_back( southPoleIndex );
-		indices.push_back( baseIndex + i );
-		indices.push_back( baseIndex + i + 1 );
-	}
 }

@@ -1,11 +1,11 @@
-cbuffer Object : register(b0)
-{
-    float4x4 worldMatrix;
-};
-cbuffer LightCamera : register(b5)
+cbuffer LightCamera : register(b0)
 {
     float4x4 lightView;
     float4x4 lightProjection;
+};
+cbuffer Object : register(b1)
+{
+    float4x4 worldMatrix;
 };
 
 struct VSIn

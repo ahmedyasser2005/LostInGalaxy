@@ -3,7 +3,7 @@
 #include "Platform/Window.hpp"
 #include "Platform/Input.hpp"
 #include "Platform/Timer.hpp"
-#include "Graphics/Renderer.hpp"
+#include "Graphics/Renderer/Renderer.hpp"
 #include "Graphics/Texture.hpp"
 #include "Scene/Object.hpp"
 #include "Scene/Scene.hpp"
@@ -28,7 +28,6 @@ private:
 	std::unique_ptr<Window> m_window;
 	std::unique_ptr<Renderer> m_renderer;
 	std::unique_ptr<AssetManager> m_assetManager;
-
 	std::unique_ptr<Scene> m_scene;
 	Timer m_timer;
 	Input& m_input;

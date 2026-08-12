@@ -54,7 +54,7 @@
     <ClCompile Include="src\Scene\Camera.cpp" />
     <ClCompile Include="src\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="src\Graphics\IndexBuffer.cpp" />
-    <ClCompile Include="src\Graphics\Renderer.cpp" />
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Graphics\VertexBuffer.cpp" />
@@ -90,7 +90,7 @@
     <ClInclude Include="src\Graphics\GraphicsDevice.hpp" />
     <ClInclude Include="src\Graphics\ConstantBuffer.hpp" />
     <ClInclude Include="src\Graphics\IndexBuffer.hpp" />
-    <ClInclude Include="src\Graphics\Renderer.hpp" />
+    <ClInclude Include="src\Graphics\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Graphics\Sampler.hpp" />
     <ClInclude Include="src\Graphics\Shader.hpp" />
     <ClInclude Include="src\Graphics\VertexBuffer.hpp" />

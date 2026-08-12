@@ -1,20 +1,13 @@
 #include "pch.h"
 #include "Light.hpp"
 
-DirectX::XMMATRIX LightSource::GetViewMatrix() noexcept(!_DEBUG)
+DirectX::XMMATRIX LightSource::GetViewMatrix( DirectX::XMVECTOR focusPosition ) noexcept(!_DEBUG)
 {
 	using namespace DirectX;
 
 	if( !transform.IsDirty() ) return XMLoadFloat4x4( &m_viewMatrixStorage );
 
-	XMMATRIX translation = XMMatrixTranslationFromVector( XMVectorNegate( transform.XYZ() ) );
-	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector( transform.PitchYawRoll() );
-
-	XMStoreFloat3( &m_rightVector, XMVector3Transform( g_XMIdentityR0, rotation ) );
-	XMStoreFloat3( &m_upVector, XMVector3Transform( g_XMIdentityR1, rotation ) );
-	XMStoreFloat3( &m_forwardVector, XMVector3Transform( g_XMIdentityR2, rotation ) );
-
-	XMMATRIX viewMatrix = translation * XMMatrixTranspose( rotation );
+	XMMATRIX viewMatrix = XMMatrixLookAtLH( transform.XYZ(), focusPosition, { 0.0f, 1.0f, 0.0f, 0.0f } );
 
 	XMStoreFloat4x4( &m_viewMatrixStorage, viewMatrix );
 

@@ -119,8 +119,11 @@ bool AssetManager::LoadTexture( std::string_view textureName, std::filesystem::p
 
 	m_assets<Texture>[textureName.data()] =
 	{
-		// BUG: When subtracting 1 from the .size() method, it causes an underflow because the element is not 
-		// fully constructed yet, which causes size() to return 0 and subtracting 1 results in an underflow (-1)
+		/*********************************************************************************
+		* When subtracting 1 from the .size() method,									 *
+		* it causes an underflow because the element is not fully constructed yet,		 *
+		* which causes size() to return 0 and subtracting 1 results in an underflow (-1) *
+		*********************************************************************************/
 		.asset = std::make_shared<Texture>( m_device, std::move( img ), static_cast<uint16_t>(m_assets<Texture>.size()) ),
 		.path = textureFilepath,
 	};

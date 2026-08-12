@@ -12,7 +12,6 @@ public:
 	void SetFarZ( float value ) noexcept(!_DEBUG);
 	void UpdateProjection( float angle, uint16_t width, uint16_t height, float nearZ, float farZ ) noexcept(!_DEBUG);
 
-	//[[nodiscard]] DirectX::XMMATRIX GetViewProjMatrix() noexcept(!_DEBUG);
 	[[nodiscard]] DirectX::XMMATRIX GetViewMatrix() noexcept(!_DEBUG);
 	[[nodiscard]] DirectX::XMMATRIX GetProjectionMatrix() noexcept(!_DEBUG);
 
@@ -40,7 +39,6 @@ public:
 	float sensitivity = 1.0f;
 
 private:
-	//DirectX::XMFLOAT4X4 m_viewProjMatrixStorage = {};
 	DirectX::XMFLOAT4X4 m_viewMatrixStorage = {};
 	DirectX::XMFLOAT4X4 m_projMatrixStorage = {};
 

@@ -4,6 +4,8 @@
 #include "Scene/Camera.hpp"
 #include "Scene/Light.hpp"
 
+// TODO: use templates
+
 class Scene {
 public:
 	// Object
